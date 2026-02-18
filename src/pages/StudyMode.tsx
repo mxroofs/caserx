@@ -1,29 +1,39 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
-import { ChevronDown, ChevronUp, CheckCircle2, XCircle, ArrowRight, RotateCcw, Activity } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, XCircle, ArrowRight, RotateCcw, Activity, Lock } from "lucide-react";
+
+const MIN_CHARS = 200;
 
 const StudyMode = () => {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [explanation, setExplanation] = useState("");
+  const [locked, setLocked] = useState(false);
   const [showGuidelines, setShowGuidelines] = useState(false);
   const [results, setResults] = useState<boolean[]>([]);
   const [finished, setFinished] = useState(false);
 
   const totalCases = seedCases.length;
   const currentCase: CaseData = seedCases[currentIndex];
-  const isAnswered = selectedId !== null;
+  const isSelected = selectedId !== null;
+  const isAnswered = locked;
   const isCorrect = selectedId === currentCase.correctOptionId;
 
   const handleSelect = useCallback(
     (id: string) => {
-      if (isAnswered) return;
+      if (locked) return;
       setSelectedId(id);
-      setResults((prev) => [...prev, id === currentCase.correctOptionId]);
     },
-    [isAnswered, currentCase.correctOptionId]
+    [locked]
   );
+
+  const handleLock = () => {
+    if (!selectedId || explanation.length < MIN_CHARS) return;
+    setLocked(true);
+    setResults((prev) => [...prev, selectedId === currentCase.correctOptionId]);
+  };
 
   const handleNext = () => {
     if (currentIndex + 1 >= totalCases) {
@@ -31,6 +41,8 @@ const StudyMode = () => {
     } else {
       setCurrentIndex((i) => i + 1);
       setSelectedId(null);
+      setExplanation("");
+      setLocked(false);
       setShowGuidelines(false);
     }
   };
@@ -38,6 +50,8 @@ const StudyMode = () => {
   const handleRestart = () => {
     setCurrentIndex(0);
     setSelectedId(null);
+    setExplanation("");
+    setLocked(false);
     setShowGuidelines(false);
     setResults([]);
     setFinished(false);
@@ -156,13 +170,15 @@ const StudyMode = () => {
                 } else {
                   variant = "bg-secondary/50 text-muted-foreground border-border opacity-60";
                 }
+              } else if (opt.id === selectedId) {
+                variant = "bg-primary/15 text-primary border-primary/50";
               }
               return (
                 <button
                   key={opt.id}
                   onClick={() => handleSelect(opt.id)}
-                  disabled={isAnswered}
-                  className={`w-full rounded-xl border py-3 px-4 text-left text-sm font-medium transition active:scale-[0.98] ${variant} ${!isAnswered ? "hover:border-primary/50 hover:bg-primary/5 cursor-pointer" : "cursor-default"}`}
+                  disabled={locked}
+                  className={`w-full rounded-xl border py-3 px-4 text-left text-sm font-medium transition active:scale-[0.98] ${variant} ${!locked ? "hover:border-primary/50 hover:bg-primary/5 cursor-pointer" : "cursor-default"}`}
                 >
                   <span className="font-bold mr-2">{opt.id}.</span>
                   {opt.label}
@@ -177,12 +193,45 @@ const StudyMode = () => {
             })}
           </div>
 
+          {/* Explanation step (after selecting, before locking) */}
+          {isSelected && !locked && (
+            <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="rounded-xl bg-card border border-border p-4 space-y-3">
+                <h3 className="text-sm font-bold text-foreground">Explain your choice (required)</h3>
+                <textarea
+                  value={explanation}
+                  onChange={(e) => setExplanation(e.target.value)}
+                  placeholder="Explain the drug's mechanism, what goal you're targeting for this patient, and key risks/contraindications…"
+                  className="w-full min-h-[120px] rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y"
+                />
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs font-medium ${explanation.length >= MIN_CHARS ? "text-success" : "text-muted-foreground"}`}>
+                    {explanation.length}/{MIN_CHARS} characters min
+                  </span>
+                  <button
+                    onClick={handleLock}
+                    disabled={explanation.length < MIN_CHARS}
+                    className="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground flex items-center gap-2 transition hover:brightness-110 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none"
+                  >
+                    <Lock className="h-4 w-4" /> Lock Answer
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Answer reveal */}
           {isAnswered && (
             <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
               {/* Best answer banner */}
               <div className={`rounded-xl p-3 text-center font-bold text-sm ${isCorrect ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
                 {isCorrect ? "✓ Correct!" : `✗ Best Answer: ${correctOption?.id}. ${correctOption?.label}`}
+              </div>
+
+              {/* Your reasoning */}
+              <div className="rounded-xl bg-card border border-border p-4 space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Your reasoning</h3>
+                <p className="text-sm text-foreground whitespace-pre-wrap">{explanation}</p>
               </div>
 
               {/* Why section */}
