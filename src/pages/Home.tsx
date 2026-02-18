@@ -28,18 +28,13 @@ const Home = () => {
           >
             Study Mode
           </button>
-          <div className="relative">
-            <button
-              disabled
-              className="w-full rounded-xl bg-secondary py-4 text-lg font-bold text-muted-foreground cursor-not-allowed opacity-60 flex items-center justify-center gap-2"
+          <button
+              onClick={() => navigate("/versus")}
+              className="w-full rounded-xl bg-secondary py-4 text-lg font-bold text-secondary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
             >
               <Swords className="h-5 w-5" />
               Versus Mode
             </button>
-            <span className="absolute -top-2 right-4 rounded-full bg-warning px-2 py-0.5 text-[10px] font-bold text-warning-foreground">
-              Coming soon
-            </span>
-          </div>
         </div>
       </div>
     </div>
