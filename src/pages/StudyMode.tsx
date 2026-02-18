@@ -33,7 +33,34 @@ const StudyMode = () => {
       if (found) hits.push(c);
       else misses.push(c);
     });
-    return { hits, misses, lowQuality: hits.length < 2 };
+    const score = Math.min(hits.length, 4);
+
+    // Priority signal inference
+    const hitLabels = hits.map((h) => h.label.toLowerCase()).join(" ");
+    const missLabels = misses.map((m) => m.label.toLowerCase()).join(" ");
+    const hitKws = hits.flatMap((h) => h.keywords).join(" ").toLowerCase();
+    const missKws = misses.flatMap((m) => m.keywords).join(" ").toLowerCase();
+    const allHit = hitLabels + " " + hitKws;
+    const allMiss = missLabels + " " + missKws;
+
+    let prioritySignal = "";
+    const cvHit = /cardiovascular|heart failure|hfref|hfpef|cv benefit|ascvd/.test(allHit);
+    const glycemicHit = /a1c|glucose|hyperglycemia|glycemic/.test(allHit);
+    const cvRenalMiss = /cardiovascular|heart failure|renal|kidney|ckd|cv benefit/.test(allMiss);
+    const safetyMiss = /contraindic|risk|avoid|retention|fracture|hypoglycemia|uti|lactic/.test(allMiss);
+
+    if (cvHit) {
+      prioritySignal = "You prioritized cardiovascular outcomes";
+    } else if (glycemicHit && cvRenalMiss) {
+      prioritySignal = "You prioritized glycemic control over long-term outcomes";
+    }
+    if (safetyMiss) {
+      prioritySignal = prioritySignal
+        ? prioritySignal + " — safety considerations were deprioritized"
+        : "Safety considerations were deprioritized";
+    }
+
+    return { hits, misses, lowQuality: hits.length < 2, score, prioritySignal };
   }, [locked, explanation, checks]);
 
   const handleAutoFill = () => {
@@ -260,6 +287,25 @@ const StudyMode = () => {
               <div className={`rounded-xl p-3 text-center font-bold text-sm ${isCorrect ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
                 {isCorrect ? "✓ Correct!" : `✗ Best Answer: ${correctOption?.id}. ${correctOption?.label}`}
               </div>
+
+              {/* Reasoning score badge */}
+              {reasoningResults && (
+                <div className="rounded-xl bg-card border border-border p-3 space-y-1.5">
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Reasoning quality</span>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                      reasoningResults.score <= 1 ? "bg-destructive/15 text-destructive" :
+                      reasoningResults.score === 2 ? "bg-warning/15 text-warning" :
+                      "bg-success/15 text-success"
+                    }`}>
+                      {reasoningResults.score} / 4
+                    </span>
+                  </div>
+                  {reasoningResults.prioritySignal && (
+                    <p className="text-xs text-center text-muted-foreground italic">{reasoningResults.prioritySignal}</p>
+                  )}
+                </div>
+              )}
 
               {/* Your reasoning */}
               <div className="rounded-xl bg-card border border-border p-4 space-y-2">
