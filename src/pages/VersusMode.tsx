@@ -6,12 +6,19 @@ import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy } f
 const TURN_SECONDS = 60;
 
 type Phase = "ready" | "playing" | "handoff" | "results";
+type Confidence = "low" | "medium" | "high";
 
 interface PlayerState {
   score: number;
   answered: number;
   caseIndex: number;
 }
+
+const CONFIDENCE_POINTS: Record<Confidence, { correct: number; incorrect: number }> = {
+  low: { correct: 0, incorrect: 0 },
+  medium: { correct: 1, incorrect: -1 },
+  high: { correct: 2, incorrect: -2 },
+};
 
 const VersusMode = () => {
   const navigate = useNavigate();
@@ -24,7 +31,9 @@ const VersusMode = () => {
   ]);
   const [timeLeft, setTimeLeft] = useState(TURN_SECONDS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [confidence, setConfidence] = useState<Confidence | null>(null);
   const [revealed, setRevealed] = useState(false);
+  const [roundResult, setRoundResult] = useState<{ confidence: Confidence; correct: boolean; delta: number } | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const currentPlayer = players[activePlayer];
@@ -59,21 +68,23 @@ const VersusMode = () => {
 
   const handleSelect = useCallback(
     (id: string) => {
-      if (revealed) return;
+      if (revealed || !confidence) return;
       setSelectedId(id);
     },
-    [revealed]
+    [revealed, confidence]
   );
 
   const handleConfirm = () => {
-    if (!selectedId) return;
+    if (!selectedId || !confidence) return;
     setRevealed(true);
     const correct = selectedId === currentCase.correctOptionId;
+    const delta = correct ? CONFIDENCE_POINTS[confidence].correct : CONFIDENCE_POINTS[confidence].incorrect;
+    setRoundResult({ confidence, correct, delta });
     setPlayers((prev) => {
       const next = [...prev] as [PlayerState, PlayerState];
       next[activePlayer] = {
         ...next[activePlayer],
-        score: next[activePlayer].score + (correct ? 1 : 0),
+        score: next[activePlayer].score + delta,
         answered: next[activePlayer].answered + 1,
       };
       return next;
@@ -90,13 +101,17 @@ const VersusMode = () => {
       return next;
     });
     setSelectedId(null);
+    setConfidence(null);
     setRevealed(false);
+    setRoundResult(null);
   };
 
   const handleStartPlayerB = () => {
     setActivePlayer(1);
     setSelectedId(null);
+    setConfidence(null);
     setRevealed(false);
+    setRoundResult(null);
     setTimeLeft(TURN_SECONDS);
     setPhase("playing");
   };
@@ -109,7 +124,9 @@ const VersusMode = () => {
       { score: 0, answered: 0, caseIndex: 0 },
     ]);
     setSelectedId(null);
+    setConfidence(null);
     setRevealed(false);
+    setRoundResult(null);
     setTimeLeft(TURN_SECONDS);
   };
 
@@ -215,7 +232,7 @@ const VersusMode = () => {
   }
 
   // ── Playing phase ──
-  const isCorrect = selectedId === currentCase.correctOptionId;
+  // playing phase
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -264,13 +281,43 @@ const VersusMode = () => {
             </p>
           </div>
 
+          {/* Confidence selector */}
+          <div className="space-y-1">
+            <p className="text-center text-xs font-semibold text-muted-foreground">Your confidence?</p>
+            <div className="flex justify-center gap-2">
+              {(["low", "medium", "high"] as Confidence[]).map((level) => {
+                const selected = confidence === level;
+                const locked = selectedId !== null;
+                return (
+                  <button
+                    key={level}
+                    onClick={() => !locked && setConfidence(level)}
+                    disabled={locked}
+                    className={`rounded-full px-3 py-1 text-xs font-bold capitalize transition active:scale-[0.96] border ${
+                      selected
+                        ? "bg-primary/15 text-primary border-primary/50"
+                        : locked
+                        ? "bg-secondary/50 text-muted-foreground border-border opacity-50 cursor-default"
+                        : "bg-secondary text-secondary-foreground border-border cursor-pointer hover:brightness-110"
+                    }`}
+                  >
+                    {level}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Question */}
           <p className="text-center text-sm font-semibold text-foreground">Best next medication?</p>
 
           {/* Options */}
           <div className="space-y-2">
             {currentCase.options.map((opt) => {
-              let variant = "bg-secondary text-secondary-foreground border-border";
+              const disabled = revealed || !confidence;
+              let variant = disabled && !revealed
+                ? "bg-secondary/50 text-muted-foreground border-border opacity-60"
+                : "bg-secondary text-secondary-foreground border-border";
               if (revealed) {
                 if (opt.id === currentCase.correctOptionId) {
                   variant = "bg-success/15 text-success border-success/40";
@@ -286,8 +333,8 @@ const VersusMode = () => {
                 <button
                   key={opt.id}
                   onClick={() => handleSelect(opt.id)}
-                  disabled={revealed}
-                  className={`w-full rounded-xl border py-2.5 px-4 text-left text-sm font-medium transition active:scale-[0.98] ${variant} ${!revealed ? "cursor-pointer" : "cursor-default"}`}
+                  disabled={disabled}
+                  className={`w-full rounded-xl border py-2.5 px-4 text-left text-sm font-medium transition active:scale-[0.98] ${variant} ${!disabled ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <span className="font-bold mr-2">{opt.id}.</span>
                   {opt.label}
@@ -311,11 +358,14 @@ const VersusMode = () => {
               Confirm
             </button>
           )}
-          {revealed && (
+          {revealed && roundResult && (
             <div className="space-y-2 animate-in fade-in duration-200">
-              <div className={`rounded-xl p-2.5 text-center font-bold text-sm ${isCorrect ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
-                {isCorrect ? "✓ Correct!" : `✗ Answer: ${currentCase.correctOptionId}`}
+              <div className={`rounded-xl p-2.5 text-center font-bold text-sm ${roundResult.correct ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
+                {roundResult.correct ? "✓ Correct!" : `✗ Answer: ${currentCase.correctOptionId}`}
               </div>
+              <p className={`text-center text-xs font-semibold ${roundResult.delta > 0 ? "text-success" : roundResult.delta < 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                Confidence: <span className="capitalize">{roundResult.confidence}</span> | Result: {roundResult.correct ? "Correct" : "Incorrect"} → {roundResult.delta > 0 ? "+" : ""}{roundResult.delta}
+              </p>
               <button
                 onClick={handleNextCase}
                 className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
