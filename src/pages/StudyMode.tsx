@@ -1,10 +1,19 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
 import { reasoningChecksByCase, ReasoningCheck } from "@/data/reasoningChecks";
-import { ChevronDown, ChevronUp, CheckCircle2, XCircle, ArrowRight, RotateCcw, Activity, Lock, AlertTriangle, Sparkles } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, XCircle, ArrowRight, RotateCcw, Activity, Lock, AlertTriangle, Sparkles, Coins } from "lucide-react";
 
 const MIN_CHARS = 75;
+const STORAGE_KEY = "study-mode-currency";
+
+const getStoredCurrency = (): number => {
+  try {
+    const val = localStorage.getItem(STORAGE_KEY);
+    return val ? parseInt(val, 10) : 100;
+  } catch { return 100; }
+};
+
 
 const StudyMode = () => {
   const navigate = useNavigate();
@@ -15,6 +24,12 @@ const StudyMode = () => {
   const [showGuidelines, setShowGuidelines] = useState(false);
   const [results, setResults] = useState<boolean[]>([]);
   const [finished, setFinished] = useState(false);
+  const [currency, setCurrency] = useState(getStoredCurrency);
+  const [deltaText, setDeltaText] = useState<string | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, String(currency));
+  }, [currency]);
 
   const totalCases = seedCases.length;
   const currentCase: CaseData = seedCases[currentIndex];
@@ -86,7 +101,21 @@ const StudyMode = () => {
   const handleLock = () => {
     if (!selectedId || explanation.length < MIN_CHARS) return;
     setLocked(true);
-    setResults((prev) => [...prev, selectedId === currentCase.correctOptionId]);
+    const correct = selectedId === currentCase.correctOptionId;
+    setResults((prev) => [...prev, correct]);
+
+    // Calculate currency delta after a tick so reasoningResults is available
+    setTimeout(() => {
+      const lower = explanation.toLowerCase();
+      const caseChecks = reasoningChecksByCase[currentCase.id] ?? [];
+      const hitCount = Math.min(caseChecks.filter(c => c.keywords.some(kw => lower.includes(kw.toLowerCase()))).length, 4);
+      let delta = correct ? 5 : -3;
+      delta += hitCount; // +1 per reasoning point
+      setCurrency(prev => prev + delta);
+      const sign = delta >= 0 ? "+" : "";
+      setDeltaText(`${sign}${delta} 💰`);
+      setTimeout(() => setDeltaText(null), 2000);
+    }, 0);
   };
 
   const handleNext = () => {
@@ -156,7 +185,16 @@ const StudyMode = () => {
             <Activity className="h-5 w-5 text-primary" />
             <span className="text-sm font-bold text-foreground">Diabetes Decision Trainer</span>
           </div>
-          <span className="text-xs text-muted-foreground hidden sm:inline">Right med · Right patient · 60 seconds</span>
+          <span className="text-xs text-muted-foreground hidden sm:inline">Right med · Right patient · Think it through</span>
+          <div className="flex items-center gap-1.5 relative">
+            <Coins className="h-4 w-4 text-primary" />
+            <span className="text-sm font-bold text-foreground">{currency}</span>
+            {deltaText && (
+              <span className="absolute -top-5 right-0 text-xs font-bold text-primary animate-fade-in whitespace-nowrap">
+                {deltaText}
+              </span>
+            )}
+          </div>
         </div>
       </header>
 
@@ -285,8 +323,13 @@ const StudyMode = () => {
             <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
               {/* Best answer banner */}
               <div className={`rounded-xl p-3 text-center font-bold text-sm ${isCorrect ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
-                {isCorrect ? "✓ Correct!" : `✗ Best Answer: ${correctOption?.id}. ${correctOption?.label}`}
+              {isCorrect ? "✓ Correct!" : `✗ Best Answer: ${correctOption?.id}. ${correctOption?.label}`}
               </div>
+
+              {/* Shallow reasoning warning */}
+              {isCorrect && reasoningResults && reasoningResults.score === 0 && (
+                <p className="text-xs text-center text-warning font-medium italic">Correct answer, but shallow reasoning.</p>
+              )}
 
               {/* Reasoning score badge */}
               {reasoningResults && (
