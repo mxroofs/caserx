@@ -118,7 +118,7 @@ const StudyMode = () => {
       setCurrency(prev => Math.max(0, prev + delta));
       const sign = delta >= 0 ? "+" : "";
       setDeltaText(`${sign}${delta} this round`);
-      setTimeout(() => setDeltaText(null), 1500);
+      // Delta stays visible until next case
     }, 0);
   };
 
@@ -131,6 +131,7 @@ const StudyMode = () => {
       setExplanation("");
       setLocked(false);
       setShowGuidelines(false);
+      setDeltaText(null);
     }
   };
 
@@ -190,11 +191,13 @@ const StudyMode = () => {
             <span className="text-sm font-bold text-foreground">Diabetes Decision Trainer</span>
           </div>
           <span className="text-xs text-muted-foreground hidden sm:inline">Right med · Right patient · Think it through</span>
-          <div className="flex items-center gap-1.5 relative">
-            <Coins className="h-4 w-4 text-primary" />
-            <span className="text-sm font-bold text-foreground">{currency}</span>
+          <div className="flex flex-col items-end relative">
+            <div className="flex items-center gap-1.5">
+              <Coins className="h-4 w-4 text-primary" />
+              <span className="text-sm font-bold text-foreground">{currency}</span>
+            </div>
             {deltaText && (
-              <span className={`absolute -top-5 right-0 text-xs font-bold animate-fade-in whitespace-nowrap ${deltaText.startsWith("+") ? "text-success" : "text-destructive"}`}>
+              <span className={`text-[10px] font-semibold ${deltaText.startsWith("+") ? "text-success" : deltaText.startsWith("-") ? "text-destructive" : "text-muted-foreground"}`}>
                 {deltaText}
               </span>
             )}
