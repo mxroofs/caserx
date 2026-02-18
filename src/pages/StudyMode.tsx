@@ -216,32 +216,38 @@ const StudyMode = () => {
           </div>
 
           {/* Patient card */}
-          <div className="rounded-2xl bg-card border border-border p-4 space-y-3">
-            <h2 className="text-lg font-bold text-foreground">{currentCase.patient_stem_short}</h2>
+          <div className="rounded-2xl bg-card border border-border px-5 py-5 space-y-0">
+            <h2 className="text-lg font-semibold text-foreground leading-snug">{currentCase.patient_stem_short}</h2>
 
             {/* Metric chips */}
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-3 gap-2 pt-4">
               <MetricChip label="A1C" value={currentCase.metrics.a1c} />
               <MetricChip label="eGFR" value={currentCase.metrics.egfr} />
               <MetricChip label="BMI" value={currentCase.metrics.bmi} />
             </div>
 
+            {/* Divider */}
+            <div className="border-t border-border/60 my-0 !mt-4" />
+
             {/* Comorbidities */}
-            <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Comorbidities</h3>
-              <ul className="space-y-0.5">
+            <div className="pt-3 pb-1">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Comorbidities</h3>
+              <ul className="space-y-1">
                 {currentCase.comorbidities.map((c, i) => (
-                  <li key={i} className="text-sm text-foreground">• {c}</li>
+                  <li key={i} className="text-sm text-foreground/90 pl-3 relative before:content-['•'] before:absolute before:left-0 before:text-muted-foreground">{c}</li>
                 ))}
               </ul>
             </div>
 
+            {/* Divider */}
+            <div className="border-t border-border/60" />
+
             {/* Current Meds */}
-            <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Current Medications</h3>
-              <ul className="space-y-0.5">
+            <div className="pt-3">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Current Medications</h3>
+              <ul className="space-y-1">
                 {currentCase.current_meds.map((m, i) => (
-                  <li key={i} className="text-sm text-foreground">• {m}</li>
+                  <li key={i} className="text-sm text-foreground/90 pl-3 relative before:content-['•'] before:absolute before:left-0 before:text-muted-foreground">{m}</li>
                 ))}
               </ul>
             </div>
@@ -449,10 +455,11 @@ const StudyMode = () => {
 };
 
 const MetricChip = ({ label, value }: { label: string; value: string }) => (
-  <div className="rounded-lg bg-primary/10 px-3 py-1.5">
-    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">{label}</span>
-    <p className="text-sm font-bold text-foreground">{value}</p>
+  <div className="rounded-lg bg-primary/12 border border-primary/20 px-3 py-2 text-center">
+    <span className="block text-[10px] font-bold uppercase tracking-widest text-primary/80">{label}</span>
+    <p className="text-base font-extrabold text-foreground mt-0.5">{value}</p>
   </div>
 );
+
 
 export default StudyMode;
