@@ -10,7 +10,7 @@ const STORAGE_KEY = "study-mode-currency";
 const getStoredCurrency = (): number => {
   try {
     const val = localStorage.getItem(STORAGE_KEY);
-    return val ? parseInt(val, 10) : 100;
+    return val ? parseInt(val, 10) : 50;
   } catch { return 100; }
 };
 
@@ -109,12 +109,16 @@ const StudyMode = () => {
       const lower = explanation.toLowerCase();
       const caseChecks = reasoningChecksByCase[currentCase.id] ?? [];
       const hitCount = Math.min(caseChecks.filter(c => c.keywords.some(kw => lower.includes(kw.toLowerCase()))).length, 4);
-      let delta = correct ? 5 : -3;
-      delta += hitCount; // +1 per reasoning point
-      setCurrency(prev => prev + delta);
+      let delta = correct ? 2 : -4;
+      // Reasoning bonus: 0-1 hits → +0, 2 → +1, 3-4 → +2
+      const reasoningBonus = hitCount <= 1 ? 0 : hitCount === 2 ? 1 : 2;
+      delta += reasoningBonus;
+      // Shallow reasoning penalty
+      if (hitCount === 0) delta -= 1;
+      setCurrency(prev => Math.max(0, prev + delta));
       const sign = delta >= 0 ? "+" : "";
-      setDeltaText(`${sign}${delta} 💰`);
-      setTimeout(() => setDeltaText(null), 2000);
+      setDeltaText(`${sign}${delta} this round`);
+      setTimeout(() => setDeltaText(null), 1500);
     }, 0);
   };
 
@@ -190,7 +194,7 @@ const StudyMode = () => {
             <Coins className="h-4 w-4 text-primary" />
             <span className="text-sm font-bold text-foreground">{currency}</span>
             {deltaText && (
-              <span className="absolute -top-5 right-0 text-xs font-bold text-primary animate-fade-in whitespace-nowrap">
+              <span className={`absolute -top-5 right-0 text-xs font-bold animate-fade-in whitespace-nowrap ${deltaText.startsWith("+") ? "text-success" : "text-destructive"}`}>
                 {deltaText}
               </span>
             )}
