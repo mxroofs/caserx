@@ -1,9 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
-import { ChevronDown, ChevronUp, CheckCircle2, XCircle, ArrowRight, RotateCcw, Activity, Lock } from "lucide-react";
+import { reasoningChecksByCase, ReasoningCheck } from "@/data/reasoningChecks";
+import { ChevronDown, ChevronUp, CheckCircle2, XCircle, ArrowRight, RotateCcw, Activity, Lock, AlertTriangle, Sparkles } from "lucide-react";
 
-const MIN_CHARS = 200;
+const MIN_CHARS = 75;
 
 const StudyMode = () => {
   const navigate = useNavigate();
@@ -20,6 +21,32 @@ const StudyMode = () => {
   const isSelected = selectedId !== null;
   const isAnswered = locked;
   const isCorrect = selectedId === currentCase.correctOptionId;
+  const checks = reasoningChecksByCase[currentCase.id] ?? [];
+
+  const reasoningResults = useMemo(() => {
+    if (!locked) return null;
+    const lower = explanation.toLowerCase();
+    const hits: ReasoningCheck[] = [];
+    const misses: ReasoningCheck[] = [];
+    checks.forEach((c) => {
+      const found = c.keywords.some((kw) => lower.includes(kw.toLowerCase()));
+      if (found) hits.push(c);
+      else misses.push(c);
+    });
+    return { hits, misses, lowQuality: hits.length < 2 };
+  }, [locked, explanation, checks]);
+
+  const handleAutoFill = () => {
+    if (locked || !selectedId) return;
+    const selected = currentCase.options.find((o) => o.id === selectedId);
+    const factor = currentCase.comorbidities[0] || "the patient's clinical profile";
+    const risk = currentCase.avoidList.length > 0
+      ? currentCase.avoidList[0].split("–")[0].trim()
+      : "agents with unfavorable side-effect profiles";
+    setExplanation(
+      `I chose ${selected?.label} because of ${factor} and to avoid ${risk}. This agent addresses the primary clinical concern while minimizing adverse effects for this patient.`
+    );
+  };
 
   const handleSelect = useCallback(
     (id: string) => {
@@ -216,6 +243,12 @@ const StudyMode = () => {
                     <Lock className="h-4 w-4" /> Lock Answer
                   </button>
                 </div>
+                <button
+                  onClick={handleAutoFill}
+                  className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+                >
+                  <Sparkles className="h-3 w-3" /> Auto-fill example reasoning
+                </button>
               </div>
             </div>
           )}
@@ -233,6 +266,39 @@ const StudyMode = () => {
                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Your reasoning</h3>
                 <p className="text-sm text-foreground whitespace-pre-wrap">{explanation}</p>
               </div>
+
+              {/* Reasoning analysis */}
+              {reasoningResults && (
+                <div className="rounded-xl bg-card border border-border p-4 space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Reasoning analysis</h3>
+                  {reasoningResults.lowQuality && (
+                    <div className="flex items-center gap-2 rounded-lg bg-warning/15 border border-warning/30 px-3 py-2 text-xs font-medium text-warning">
+                      <AlertTriangle className="h-4 w-4 shrink-0" />
+                      Low-quality explanation — try to reference specific mechanisms, risks, and patient factors.
+                    </div>
+                  )}
+                  {reasoningResults.hits.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-success mb-1">✓ You considered</p>
+                      <ul className="space-y-0.5">
+                        {reasoningResults.hits.map((h, i) => (
+                          <li key={i} className="text-sm text-foreground">• {h.label} — {h.hitFeedback}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {reasoningResults.misses.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-destructive mb-1">✗ You overlooked</p>
+                      <ul className="space-y-0.5">
+                        {reasoningResults.misses.map((m, i) => (
+                          <li key={i} className="text-sm text-muted-foreground">• {m.label} — {m.missFeedback}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Why section */}
               <div className="rounded-xl bg-card border border-border p-4 space-y-2">
