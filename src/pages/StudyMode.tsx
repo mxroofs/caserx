@@ -5,6 +5,7 @@ import { reasoningChecksByCase, ReasoningCheck } from "@/data/reasoningChecks";
 import { ChevronDown, CheckCircle2, XCircle, ArrowRight, RotateCcw, Lock, AlertTriangle, Sparkles, Coins } from "lucide-react";
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
+import { Card, CardContent } from "@/components/ui/card";
 
 const MIN_CHARS = 75;
 const STORAGE_KEY = "study-mode-currency";
@@ -30,7 +31,6 @@ const StudyMode = () => {
   const [currency, setCurrency] = useState(getStoredCurrency);
   const [deltaText, setDeltaText] = useState<string | null>(null);
 
-  // Signal round-active to global shell
   const isInRound = selectedId !== null || locked;
   useEffect(() => {
     setRoundActive(isInRound && !finished);
@@ -168,29 +168,29 @@ const StudyMode = () => {
     const pct = Math.round((correctCount / totalCases) * 100);
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-md text-center space-y-8">
-          <div className="space-y-4 py-8">
+        <Card className="w-full max-w-md text-center">
+          <CardContent className="space-y-6 p-8">
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Session Complete</h2>
             <div className="text-6xl font-extrabold text-primary">{pct}%</div>
             <p className="text-muted-foreground">
               {correctCount} / {totalCases} correct
             </p>
-          </div>
-          <div className="space-y-3">
-            <button
-              onClick={handleRestart}
-              className="w-full rounded-xl bg-primary py-4 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
-            >
-              <RotateCcw className="h-5 w-5" /> Restart
-            </button>
-            <button
-              onClick={() => navigate("/")}
-              className="w-full rounded-xl bg-secondary py-3 font-semibold text-secondary-foreground transition hover:brightness-110"
-            >
-              Home
-            </button>
-          </div>
-        </div>
+            <div className="space-y-3 pt-2">
+              <button
+                onClick={handleRestart}
+                className="w-full rounded-xl bg-primary py-4 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
+              >
+                <RotateCcw className="h-5 w-5" /> Restart
+              </button>
+              <button
+                onClick={() => navigate("/")}
+                className="w-full rounded-xl bg-secondary py-3 font-semibold text-secondary-foreground transition hover:brightness-110"
+              >
+                Home
+              </button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -198,12 +198,12 @@ const StudyMode = () => {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
-      <header className="px-4 py-3">
+      <header className="border-b border-border px-4 py-3">
         <div className="mx-auto flex max-w-md items-center justify-between">
           <div className="pl-16 sm:pl-20">
-            <span className="text-sm font-semibold text-muted-foreground tracking-wide">Study Mode</span>
+            <h1 className="text-sm font-bold text-foreground tracking-wide">Study Mode</h1>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 pr-16 sm:pr-20">
             <Coins className="h-3.5 w-3.5 text-primary/70" />
             <span className="text-sm font-bold text-foreground">{currency}</span>
             {deltaText && (
@@ -217,14 +217,14 @@ const StudyMode = () => {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-md px-4 py-2 space-y-5">
-          {/* Progress — minimal */}
+        <div className="mx-auto max-w-md px-4 py-4 space-y-4">
+          {/* Progress */}
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Case {currentIndex + 1} of {totalCases}</span>
               <span>{Math.round(progress)}%</span>
             </div>
-            <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+            <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
               <div
                 className="h-full rounded-full bg-primary/60 transition-all duration-500 ease-out"
                 style={{ width: `${progress}%` }}
@@ -232,66 +232,66 @@ const StudyMode = () => {
             </div>
           </div>
 
-          {/* Patient card — clean, borderless feel */}
-          <div className="space-y-4">
-            <div className="flex items-start justify-between">
-              <h2 className="text-xl font-bold text-foreground leading-snug tracking-tight">{currentCase.patient_stem_short}</h2>
-              {currentCase.backgroundFlag && (
-                <span className="text-sm text-muted-foreground ml-3 shrink-0">
-                  {currentCase.backgroundFlag} {currentCase.backgroundCountry}
-                </span>
-              )}
-            </div>
+          {/* Patient card — boxed */}
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <h2 className="text-lg font-bold text-foreground leading-snug tracking-tight">{currentCase.patient_stem_short}</h2>
+                {currentCase.backgroundFlag && (
+                  <span className="text-sm text-muted-foreground ml-3 shrink-0">
+                    {currentCase.backgroundFlag} {currentCase.backgroundCountry}
+                  </span>
+                )}
+              </div>
 
-            {/* Labs — inline pills */}
-            <div className="flex gap-2">
-              <LabPill label="A1C" value={currentCase.metrics.a1c} />
-              <LabPill label="eGFR" value={currentCase.metrics.egfr} />
-              <LabPill label="BMI" value={currentCase.metrics.bmi} />
-            </div>
+              {/* Labs — inline pills */}
+              <div className="flex flex-wrap gap-2">
+                <LabPill label="A1C" value={currentCase.metrics.a1c} />
+                <LabPill label="eGFR" value={currentCase.metrics.egfr} />
+                <LabPill label="BMI" value={currentCase.metrics.bmi} />
+              </div>
 
-            {/* Clinical details — compact text */}
-            <div className="text-sm text-muted-foreground leading-relaxed">
-              <span className="text-foreground/70 font-medium">Hx: </span>
-              {currentCase.comorbidities.join(" · ")}
-            </div>
-            <div className="text-sm text-muted-foreground leading-relaxed -mt-2">
-              <span className="text-foreground/70 font-medium">Meds: </span>
-              {currentCase.current_meds.join(", ")}
-            </div>
-          </div>
-
-          <div className="h-px bg-border/50" />
+              {/* Clinical details */}
+              <div className="text-sm text-muted-foreground leading-relaxed">
+                <span className="font-medium text-foreground/70">Hx: </span>
+                {currentCase.comorbidities.join(" · ")}
+              </div>
+              <div className="text-sm text-muted-foreground leading-relaxed -mt-1">
+                <span className="font-medium text-foreground/70">Meds: </span>
+                {currentCase.current_meds.join(", ")}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Question */}
           <h3 className="text-center text-base font-bold text-foreground tracking-tight">
             Best next medication?
           </h3>
 
-          {/* Answer options — list-item style */}
-          <div className="space-y-1.5">
+          {/* Answer options — card buttons */}
+          <div className="space-y-2">
             {shuffledOptions.map((opt) => {
-              let style = "text-foreground/90 hover:bg-muted/60";
+              let style = "border-border hover:border-primary/40 hover:bg-primary/5";
               if (isAnswered) {
                 if (opt.originalId === currentCase.correctOptionId) {
-                  style = "text-success bg-success/5";
+                  style = "border-success/40 bg-success/5";
                 } else if (opt.originalId === selectedId) {
-                  style = "text-destructive bg-destructive/5";
+                  style = "border-destructive/40 bg-destructive/5";
                 } else {
-                  style = "text-muted-foreground opacity-50";
+                  style = "border-border opacity-50";
                 }
               } else if (opt.originalId === selectedId) {
-                style = "text-primary bg-primary/8";
+                style = "border-primary bg-primary/8 ring-1 ring-primary/20";
               }
               return (
                 <button
                   key={opt.originalId}
                   onClick={() => handleSelect(opt.originalId)}
                   disabled={locked}
-                  className={`w-full rounded-lg py-2.5 px-4 text-left text-sm transition-colors ${style} ${!locked ? "cursor-pointer" : "cursor-default"}`}
+                  className={`w-full rounded-lg border py-3 px-4 text-left text-sm transition-all ${style} ${!locked ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <span className="font-semibold mr-1.5 text-muted-foreground">{opt.displayLabel}.</span>
-                  <span className="font-medium">{opt.label}</span>
+                  <span className="font-medium text-foreground">{opt.label}</span>
                   {isAnswered && opt.originalId === currentCase.correctOptionId && (
                     <CheckCircle2 className="inline ml-2 h-3.5 w-3.5 text-success" />
                   )}
@@ -305,18 +305,18 @@ const StudyMode = () => {
 
           {/* Explanation step */}
           {isSelected && !locked && (
-            <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="space-y-3">
+            <Card className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <CardContent className="p-4 space-y-3">
                 <label className="text-sm font-semibold text-foreground">Explain your reasoning</label>
                 <textarea
                   value={explanation}
                   onChange={(e) => setExplanation(e.target.value)}
                   placeholder="Reference the drug's mechanism, patient-specific goals, and key risks…"
-                  className="w-full min-h-[110px] rounded-lg bg-muted/40 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary/40 resize-y border-0"
+                  className="w-full min-h-[110px] rounded-lg bg-muted/40 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary/40 resize-y border border-border"
                 />
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className={`text-xs ${explanation.length >= MIN_CHARS ? "text-success/80" : "text-muted-foreground"}`}>
+                    <span className={`text-xs ${explanation.length >= MIN_CHARS ? "text-success" : "text-muted-foreground"}`}>
                       {explanation.length}/{MIN_CHARS} min
                     </span>
                     <button
@@ -334,148 +334,150 @@ const StudyMode = () => {
                     <Lock className="h-3.5 w-3.5" /> Submit
                   </button>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           )}
 
-          {/* Post-answer feedback — single vertical flow */}
+          {/* Post-answer feedback */}
           {isAnswered && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              {/* Result indicator — compact */}
-              <div className="flex items-center justify-center gap-2">
-                {isCorrect ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 text-success" />
-                    <span className="text-sm font-bold text-success">Correct</span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="h-4 w-4 text-destructive" />
-                    <span className="text-sm font-bold text-destructive">
-                      Incorrect — {correctDisplayLabel}. {correctOption?.label}
-                    </span>
-                  </>
-                )}
-              </div>
-
-              {isCorrect && reasoningResults && reasoningResults.score === 0 && (
-                <p className="text-xs text-center text-warning/80 italic">Correct, but reasoning lacked depth.</p>
-              )}
-
-              {/* Clinical Rationale — primary focus, always visible */}
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-primary/80">Clinical Rationale</h4>
-                <ul className="space-y-1.5">
-                  {currentCase.whyCorrect.slice(0, 3).map((w, i) => (
-                    <li key={i} className="text-sm text-foreground/90 leading-relaxed pl-3 relative before:content-['–'] before:absolute before:left-0 before:text-muted-foreground">{w}</li>
-                  ))}
-                </ul>
-                {!isCorrect && selectedId && (
-                  <p className="text-sm text-destructive/80 mt-2 pl-3 border-l-2 border-destructive/20">
-                    {currentCase.incorrectRationale?.[selectedId] || "This option lacks the specific clinical benefit needed for this patient's profile."}
-                  </p>
-                )}
-              </div>
-
-              {/* Reasoning Quality — compact inline */}
-              {reasoningResults && (
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground">Reasoning</span>
-                  <span className={`text-xs font-bold ${
-                    reasoningResults.score <= 1 ? "text-destructive/80" :
-                    reasoningResults.score === 2 ? "text-warning/80" :
-                    "text-success/80"
-                  }`}>
-                    {reasoningResults.score}/4
-                  </span>
-                  {reasoningResults.prioritySignal && (
-                    <span className="text-xs text-muted-foreground italic">— {reasoningResults.prioritySignal}</span>
+            <Card className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <CardContent className="p-4 space-y-4">
+                {/* Result indicator */}
+                <div className="flex items-center justify-center gap-2">
+                  {isCorrect ? (
+                    <>
+                      <CheckCircle2 className="h-5 w-5 text-success" />
+                      <span className="text-sm font-bold text-success">Correct</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-5 w-5 text-destructive" />
+                      <span className="text-sm font-bold text-destructive">
+                        Incorrect — {correctDisplayLabel}. {correctOption?.label}
+                      </span>
+                    </>
                   )}
                 </div>
-              )}
 
-              <div className="h-px bg-border/40" />
+                {isCorrect && reasoningResults && reasoningResults.score === 0 && (
+                  <p className="text-xs text-center text-warning italic">Correct, but reasoning lacked depth.</p>
+                )}
 
-              {/* Collapsible: Your Reasoning */}
-              <CollapsibleSection
-                title="Your Reasoning"
-                open={showReasoning}
-                onToggle={() => setShowReasoning(!showReasoning)}
-              >
-                <p className="text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed">{explanation}</p>
-              </CollapsibleSection>
+                {/* Clinical Rationale */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-primary/80">Clinical Rationale</h4>
+                  <ul className="space-y-1.5">
+                    {currentCase.whyCorrect.slice(0, 3).map((w, i) => (
+                      <li key={i} className="text-sm text-foreground/90 leading-relaxed pl-3 relative before:content-['–'] before:absolute before:left-0 before:text-muted-foreground">{w}</li>
+                    ))}
+                  </ul>
+                  {!isCorrect && selectedId && (
+                    <p className="text-sm text-destructive/80 mt-2 pl-3 border-l-2 border-destructive/20">
+                      {currentCase.incorrectRationale?.[selectedId] || "This option lacks the specific clinical benefit needed for this patient's profile."}
+                    </p>
+                  )}
+                </div>
 
-              {/* Collapsible: Reasoning Analysis */}
-              {reasoningResults && (
-                <CollapsibleSection
-                  title="Reasoning Analysis"
-                  open={showAnalysis}
-                  onToggle={() => setShowAnalysis(!showAnalysis)}
-                >
-                  <div className="space-y-3">
-                    {reasoningResults.lowQuality && (
-                      <div className="flex items-start gap-2 text-xs text-warning/80">
-                        <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                        <span>Low-quality explanation — reference specific mechanisms, risks, and patient factors.</span>
-                      </div>
-                    )}
-                    {reasoningResults.hits.length > 0 && (
-                      <div className="space-y-1">
-                        <p className="text-xs font-semibold text-success/80">Considered</p>
-                        {reasoningResults.hits.map((h, i) => (
-                          <p key={i} className="text-sm text-foreground/80 pl-3">– {h.label}: {h.hitFeedback}</p>
-                        ))}
-                      </div>
-                    )}
-                    {reasoningResults.misses.length > 0 && (
-                      <div className="space-y-1">
-                        <p className="text-xs font-semibold text-destructive/80">Overlooked</p>
-                        {reasoningResults.misses.map((m, i) => (
-                          <p key={i} className="text-sm text-muted-foreground pl-3">– {m.label}: {m.missFeedback}</p>
-                        ))}
-                      </div>
+                {/* Reasoning quality */}
+                {reasoningResults && (
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground">Reasoning</span>
+                    <span className={`text-xs font-bold ${
+                      reasoningResults.score <= 1 ? "text-destructive/80" :
+                      reasoningResults.score === 2 ? "text-warning/80" :
+                      "text-success/80"
+                    }`}>
+                      {reasoningResults.score}/4
+                    </span>
+                    {reasoningResults.prioritySignal && (
+                      <span className="text-xs text-muted-foreground italic">— {reasoningResults.prioritySignal}</span>
                     )}
                   </div>
-                </CollapsibleSection>
-              )}
-
-              {/* Avoid list */}
-              {currentCase.avoidList.length > 0 && (
-                <div className="space-y-1.5">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-destructive/70">Avoid</h4>
-                  {currentCase.avoidList.map((a, i) => (
-                    <p key={i} className="text-sm text-muted-foreground pl-3">– {a}</p>
-                  ))}
-                </div>
-              )}
-
-              <div className="h-px bg-border/40" />
-
-              {/* Next button */}
-              <button
-                onClick={handleNext}
-                className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
-              >
-                {currentIndex + 1 < totalCases ? (
-                  <>Next Case <ArrowRight className="h-4 w-4" /></>
-                ) : (
-                  "Finish Session"
                 )}
-              </button>
 
-              {/* Guidelines toggle */}
-              <CollapsibleSection
-                title="Guidelines"
-                open={showGuidelines}
-                onToggle={() => setShowGuidelines(!showGuidelines)}
-              >
-                <div className="space-y-1">
-                  {currentCase.guidelines.map((g, i) => (
-                    <p key={i} className="text-sm text-muted-foreground">– {g}</p>
-                  ))}
-                </div>
-              </CollapsibleSection>
-            </div>
+                <div className="h-px bg-border" />
+
+                {/* Collapsible: Your Reasoning */}
+                <CollapsibleSection
+                  title="Your Reasoning"
+                  open={showReasoning}
+                  onToggle={() => setShowReasoning(!showReasoning)}
+                >
+                  <p className="text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed">{explanation}</p>
+                </CollapsibleSection>
+
+                {/* Collapsible: Reasoning Analysis */}
+                {reasoningResults && (
+                  <CollapsibleSection
+                    title="Reasoning Analysis"
+                    open={showAnalysis}
+                    onToggle={() => setShowAnalysis(!showAnalysis)}
+                  >
+                    <div className="space-y-3">
+                      {reasoningResults.lowQuality && (
+                        <div className="flex items-start gap-2 text-xs text-warning/80">
+                          <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                          <span>Low-quality explanation — reference specific mechanisms, risks, and patient factors.</span>
+                        </div>
+                      )}
+                      {reasoningResults.hits.length > 0 && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-semibold text-success/80">Considered</p>
+                          {reasoningResults.hits.map((h, i) => (
+                            <p key={i} className="text-sm text-foreground/80 pl-3">– {h.label}: {h.hitFeedback}</p>
+                          ))}
+                        </div>
+                      )}
+                      {reasoningResults.misses.length > 0 && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-semibold text-destructive/80">Overlooked</p>
+                          {reasoningResults.misses.map((m, i) => (
+                            <p key={i} className="text-sm text-muted-foreground pl-3">– {m.label}: {m.missFeedback}</p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </CollapsibleSection>
+                )}
+
+                {/* Avoid list */}
+                {currentCase.avoidList.length > 0 && (
+                  <div className="space-y-1.5">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-destructive/70">Avoid</h4>
+                    {currentCase.avoidList.map((a, i) => (
+                      <p key={i} className="text-sm text-muted-foreground pl-3">– {a}</p>
+                    ))}
+                  </div>
+                )}
+
+                <div className="h-px bg-border" />
+
+                {/* Next button */}
+                <button
+                  onClick={handleNext}
+                  className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
+                >
+                  {currentIndex + 1 < totalCases ? (
+                    <>Next Case <ArrowRight className="h-4 w-4" /></>
+                  ) : (
+                    "Finish Session"
+                  )}
+                </button>
+
+                {/* Guidelines toggle */}
+                <CollapsibleSection
+                  title="Guidelines"
+                  open={showGuidelines}
+                  onToggle={() => setShowGuidelines(!showGuidelines)}
+                >
+                  <div className="space-y-1">
+                    {currentCase.guidelines.map((g, i) => (
+                      <p key={i} className="text-sm text-muted-foreground">– {g}</p>
+                    ))}
+                  </div>
+                </CollapsibleSection>
+              </CardContent>
+            </Card>
           )}
 
           {/* Bottom spacer */}
