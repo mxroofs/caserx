@@ -13,6 +13,7 @@ const AppShell = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const isStudyArea = location.pathname.startsWith("/study");
   const [showExitDialog, setShowExitDialog] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
@@ -28,7 +29,7 @@ const AppShell = () => {
   return (
     <>
       {/* Global top bar */}
-      {!isHome && (
+      {!isHome && !isStudyArea && (
         <button
           onClick={handleHomeClick}
           className="fixed top-3 left-3 z-50 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] max-sm:px-1.5 max-sm:py-1.5"
