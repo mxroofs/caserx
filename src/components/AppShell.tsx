@@ -31,7 +31,7 @@ const AppShell = () => {
       {!isHome && (
         <button
           onClick={handleHomeClick}
-          className="fixed top-3 left-3 z-50 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] max-sm:px-1.5 max-sm:py-1.5"
+          className="fixed top-3 left-3 z-50 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] max-sm:px-1.5 max-sm:py-1.5 max-sm:-mt-0.5 max-sm:-ml-0.5"
           aria-label="Home"
         >
           <Home className="h-4 w-4" />
