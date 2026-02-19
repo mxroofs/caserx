@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy, ChevronDown } from "lucide-react";
+import { getGuidelinesForCase } from "@/data/guidelineReferences";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy, ChevronDown, FileText } from "lucide-react";
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
@@ -508,6 +509,24 @@ const VersusMode = () => {
                 <p className={`text-center text-xs font-semibold ${roundResult.delta > 0 ? "text-success/80" : roundResult.delta < 0 ? "text-destructive/80" : "text-muted-foreground"}`}>
                   <span className="capitalize">{roundResult.confidence}</span> · {roundResult.delta > 0 ? "+" : ""}{roundResult.delta}
                 </p>
+
+                {/* Guideline References */}
+                {(() => {
+                  const guidelines = getGuidelinesForCase(currentCase.id);
+                  return guidelines.length > 0 ? (
+                    <div className="border-t border-border/50 pt-3 space-y-1.5">
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-1.5">
+                        <FileText className="h-3 w-3" /> Guideline References
+                      </p>
+                      {guidelines.slice(0, 3).map((g, i) => (
+                        <div key={i} className="text-xs text-foreground/70 pl-3 leading-relaxed">
+                          {g.text}
+                          <span className="text-[10px] text-muted-foreground/60 ml-1">— {g.source} ({g.year})</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null;
+                })()}
 
                 {/* Auto-advance + Next */}
                 <div className="border-t border-border/50 pt-3 space-y-3">
