@@ -74,12 +74,10 @@ const Home = () => {
               <Activity className="h-8 w-8 text-primary" />
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-              Diabetes Decision
-              <br />
-              <span className="text-primary">Trainer</span>
+              Case<span className="text-primary">Rx</span>
             </h1>
             <p className="mx-auto max-w-sm text-base text-muted-foreground leading-relaxed">
-              Practice T2DM medication decisions with realistic patient cases.
+              Case-based clinical decision training.
             </p>
           </div>
 
@@ -110,6 +108,11 @@ const Home = () => {
             </span>
           </div>
         </div>
+
+        {/* Insuwin attribution */}
+        <span className="absolute bottom-4 right-4 text-[11px] text-muted-foreground/50 select-none">
+          An Insuwin platform
+        </span>
       </main>
 
       {/* Feature cards — solid background, no gradient */}
