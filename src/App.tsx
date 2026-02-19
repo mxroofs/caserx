@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppShell from "./components/AppShell";
 import Home from "./pages/Home";
 import StudyMode from "./pages/StudyMode";
+import StudyBreakdown from "./pages/StudyBreakdown";
 import VersusMode from "./pages/VersusMode";
 import NotFound from "./pages/NotFound";
 
@@ -21,6 +22,7 @@ const App = () => (
           <Route element={<AppShell />}>
             <Route path="/" element={<Home />} />
             <Route path="/study" element={<StudyMode />} />
+            <Route path="/study/breakdown" element={<StudyBreakdown />} />
             <Route path="/versus" element={<VersusMode />} />
             <Route path="*" element={<NotFound />} />
           </Route>
