@@ -1,12 +1,36 @@
 import { useNavigate } from "react-router-dom";
 import { getStudySnapshot } from "@/stores/studySessionStore";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, XCircle, ArrowLeft, ChevronDown, AlertTriangle, ShieldAlert, Lightbulb } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle2, XCircle, ArrowLeft, ChevronDown, ShieldAlert, Lightbulb, ChevronsUpDown } from "lucide-react";
+import { useState, useCallback } from "react";
 
 const StudyBreakdown = () => {
   const navigate = useNavigate();
   const snapshot = getStudySnapshot();
+
+  // Track which sections are open — top 3 open by default
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    correctWhy: true,
+    whySuboptimal: true,
+    prioritize: true,
+    safety: false,
+    reasoning: false,
+    guidelines: false,
+  });
+
+  const allKeys = ["correctWhy", "whySuboptimal", "prioritize", "safety", "reasoning", "guidelines"];
+  const allOpen = allKeys.every((k) => openSections[k]);
+
+  const toggleAll = useCallback(() => {
+    const target = !allOpen;
+    const next: Record<string, boolean> = {};
+    allKeys.forEach((k) => (next[k] = target));
+    setOpenSections(next);
+  }, [allOpen]);
+
+  const toggle = useCallback((key: string) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
 
   if (!snapshot) {
     return (
@@ -64,16 +88,21 @@ const StudyBreakdown = () => {
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <button
             onClick={() => navigate("/study")}
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] pl-16 sm:pl-20"
+            className="inline-flex w-fit items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Case
           </button>
-          <div className="pr-16 sm:pr-20">
-            <h1 className="text-sm font-bold text-foreground tracking-wide">
-              Case {caseIndex + 1} of {totalCases} — Detailed Breakdown
-            </h1>
-          </div>
+          <h1 className="text-sm font-bold text-foreground tracking-wide">
+            Case {caseIndex + 1} of {totalCases} — Detailed Breakdown
+          </h1>
+          <button
+            onClick={toggleAll}
+            className="inline-flex w-fit items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
+          >
+            <ChevronsUpDown className="h-3.5 w-3.5" />
+            {allOpen ? "Collapse all" : "Expand all"}
+          </button>
         </div>
       </header>
 
@@ -115,13 +144,12 @@ const StudyBreakdown = () => {
           </Card>
 
           {/* Correct Answer & Why */}
-          <Section title="Correct Answer & Why" defaultOpen>
+          <Section title="Correct Answer & Why" sectionKey="correctWhy" open={openSections.correctWhy} onToggle={toggle}>
             <ul className="space-y-2">
               {caseData.whyCorrect.map((w, i) => (
                 <li key={i} className="text-sm text-foreground/90 leading-relaxed pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary/60">{w}</li>
               ))}
             </ul>
-            {/* Extended patient-specific context */}
             <div className="mt-3 space-y-1.5">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Patient-Specific Factors</p>
               <ul className="space-y-1">
@@ -134,7 +162,7 @@ const StudyBreakdown = () => {
 
           {/* Why your choice was wrong */}
           {!isCorrect && selectedId && (
-            <Section title={`Why ${selectedOption?.label} Is Suboptimal`} defaultOpen>
+            <Section title={`Why ${selectedOption?.label} Is Suboptimal`} sectionKey="whySuboptimal" open={openSections.whySuboptimal} onToggle={toggle}>
               <p className="text-sm text-foreground/90 leading-relaxed">
                 {caseData.incorrectRationale?.[selectedId] || "This option lacks the specific clinical benefit needed for this patient's comorbidity profile."}
               </p>
@@ -142,7 +170,7 @@ const StudyBreakdown = () => {
           )}
 
           {/* What to prioritize */}
-          <Section title="What You Should Prioritize" defaultOpen={false}>
+          <Section title="What You Should Prioritize" sectionKey="prioritize" open={openSections.prioritize} onToggle={toggle}>
             <ul className="space-y-1.5">
               {focusAreas.map((f, i) => (
                 <li key={i} className="text-sm text-foreground/90 pl-4 relative before:content-['→'] before:absolute before:left-0 before:text-primary/50">{f}</li>
@@ -152,7 +180,7 @@ const StudyBreakdown = () => {
 
           {/* Safety / contraindications */}
           {safetyNotes.length > 0 && (
-            <Section title="Safety & Contraindications" icon={<ShieldAlert className="h-4 w-4 text-destructive/70" />} defaultOpen={false}>
+            <Section title="Safety & Contraindications" sectionKey="safety" open={openSections.safety} onToggle={toggle} icon={<ShieldAlert className="h-4 w-4 text-destructive/70" />}>
               <ul className="space-y-1.5">
                 {safetyNotes.map((s, i) => (
                   <li key={i} className="text-sm text-foreground/90 pl-4 relative before:content-['⚠'] before:absolute before:left-0 before:text-destructive/50">{s}</li>
@@ -163,7 +191,7 @@ const StudyBreakdown = () => {
 
           {/* Your reasoning + analysis */}
           {explanation && (
-            <Section title="Your Reasoning" defaultOpen={false}>
+            <Section title="Your Reasoning" sectionKey="reasoning" open={openSections.reasoning} onToggle={toggle}>
               <p className="text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed">{explanation}</p>
               <div className="mt-3 flex items-center gap-3">
                 <span className="text-xs text-muted-foreground">Score</span>
@@ -200,7 +228,7 @@ const StudyBreakdown = () => {
 
           {/* Guidelines */}
           {caseData.guidelines.length > 0 && (
-            <Section title="Guideline References" defaultOpen={false}>
+            <Section title="Guideline References" sectionKey="guidelines" open={openSections.guidelines} onToggle={toggle}>
               {caseData.guidelines.map((g, i) => (
                 <p key={i} className="text-sm text-muted-foreground pl-3">– {g}</p>
               ))}
@@ -223,20 +251,17 @@ const Pill = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
-const Section = ({ title, icon, defaultOpen = true, children }: { title: string; icon?: React.ReactNode; defaultOpen?: boolean; children: React.ReactNode }) => {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <Card>
-      <CardContent className="p-5">
-        <button onClick={() => setOpen(!open)} className="flex items-center gap-2 w-full text-left">
-          {icon}
-          <h3 className="text-sm font-bold text-foreground flex-1">{title}</h3>
-          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
-        </button>
-        {open && <div className="mt-3">{children}</div>}
-      </CardContent>
-    </Card>
-  );
-};
+const Section = ({ title, sectionKey, icon, open, onToggle, children }: { title: string; sectionKey: string; icon?: React.ReactNode; open: boolean; onToggle: (key: string) => void; children: React.ReactNode }) => (
+  <Card>
+    <CardContent className="p-5">
+      <button onClick={() => onToggle(sectionKey)} className="flex items-center gap-2 w-full text-left">
+        {icon}
+        <h3 className="text-sm font-bold text-foreground flex-1">{title}</h3>
+        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && <div className="mt-3">{children}</div>}
+    </CardContent>
+  </Card>
+);
 
 export default StudyBreakdown;
