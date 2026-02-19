@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { getStudySnapshot } from "@/stores/studySessionStore";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, XCircle, ArrowLeft, ChevronDown, ShieldAlert, Lightbulb, ChevronsUpDown } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowLeft, ChevronDown, ShieldAlert, Lightbulb, ChevronsUpDown, Home } from "lucide-react";
 import { useState, useCallback } from "react";
 
 const StudyBreakdown = () => {
@@ -84,17 +84,27 @@ const StudyBreakdown = () => {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
-      <header className="border-b border-border px-3 sm:px-4 py-3">
+      <header className="sticky top-0 z-40 border-b border-border bg-background px-3 sm:px-4 py-3">
         <div className="mx-auto max-w-2xl grid grid-cols-[auto_1fr_auto] items-center gap-2">
-          <button
-            onClick={() => navigate("/study")}
-            className="inline-flex items-center gap-0.5 sm:gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] shrink-0"
-          >
-            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
-            <span className="whitespace-nowrap">Back to Case</span>
-          </button>
-          <h1 className="text-xs sm:text-sm font-bold text-foreground tracking-wide text-center leading-tight line-clamp-2 min-w-0 px-1">
-            Case {caseIndex + 1} of {totalCases} — Detailed Breakdown
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={() => navigate("/")}
+              className="inline-flex items-center rounded-lg px-1.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
+              aria-label="Home"
+            >
+              <Home className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => navigate("/study")}
+              className="inline-flex items-center gap-0.5 sm:gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
+            >
+              <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="whitespace-nowrap">Back to Case</span>
+            </button>
+          </div>
+          <h1 className="text-xs sm:text-sm font-bold text-foreground tracking-wide text-center leading-tight min-w-0 px-1">
+            <span className="block">Case {caseIndex + 1} of {totalCases}</span>
+            <span className="block">Detailed Breakdown</span>
           </h1>
           <button
             onClick={toggleAll}
