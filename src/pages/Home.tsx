@@ -51,9 +51,9 @@ const Home = () => {
           "--mouse-y": "50%",
           "--spotlight-opacity": "0",
           background:
-            "radial-gradient(ellipse 120% 90% at 15% 25%, hsl(var(--primary) / 0.14) 0%, transparent 65%), " +
-            "radial-gradient(ellipse 100% 80% at 85% 70%, hsl(var(--accent) / 0.10) 0%, transparent 60%), " +
-            "linear-gradient(135deg, hsl(var(--primary) / 0.07) 0%, hsl(var(--background)) 45%, hsl(var(--accent) / 0.09) 100%), " +
+            "radial-gradient(ellipse 120% 90% at 15% 25%, hsl(var(--primary) / var(--hero-g1)) 0%, transparent 65%), " +
+            "radial-gradient(ellipse 100% 80% at 85% 70%, hsl(var(--accent) / var(--hero-g2)) 0%, transparent 60%), " +
+            "linear-gradient(135deg, hsl(var(--primary) / var(--hero-g3)) 0%, hsl(var(--background)) 45%, hsl(var(--accent) / var(--hero-g4)) 100%), " +
             "hsl(var(--background))",
         } as React.CSSProperties}
       >
@@ -63,7 +63,7 @@ const Home = () => {
           style={{
             opacity: "var(--spotlight-opacity)",
             background:
-              "radial-gradient(circle 500px at var(--mouse-x) var(--mouse-y), hsl(var(--primary) / 0.05) 0%, transparent 80%)",
+              "radial-gradient(circle 300px at var(--mouse-x) var(--mouse-y), hsl(var(--primary) / 0.07) 0%, transparent 70%)",
           } as React.CSSProperties}
           aria-hidden="true"
         />
@@ -111,7 +111,7 @@ const Home = () => {
         </div>
 
         {/* Insuwin attribution */}
-        <span className="absolute bottom-4 right-4 text-[11px] text-muted-foreground/50 select-none">
+        <span className="absolute bottom-4 right-4 rounded-full border border-border/40 bg-muted/50 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground/70 select-none backdrop-blur-sm">
           An Insuwin platform
         </span>
       </main>

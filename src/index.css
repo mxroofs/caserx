@@ -42,6 +42,11 @@
 
     --radius: 0.75rem;
 
+    --hero-g1: 0.22;
+    --hero-g2: 0.16;
+    --hero-g3: 0.12;
+    --hero-g4: 0.14;
+
     --sidebar-background: 210 20% 97%;
     --sidebar-foreground: 220 20% 14%;
     --sidebar-primary: 168 60% 38%;
@@ -95,6 +100,11 @@
     --sidebar-accent-foreground: 210 20% 95%;
     --sidebar-border: 220 15% 22%;
     --sidebar-ring: 168 60% 48%;
+
+    --hero-g1: 0.14;
+    --hero-g2: 0.10;
+    --hero-g3: 0.07;
+    --hero-g4: 0.09;
   }
 }
 
