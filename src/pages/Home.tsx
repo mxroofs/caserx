@@ -85,17 +85,17 @@ const Home = () => {
           {/* CTAs */}
           <div className="mx-auto flex max-w-xs flex-col gap-3">
             <button
-              onClick={() => navigate("/study")}
-              className="w-full rounded-xl bg-primary py-4 text-lg font-bold text-primary-foreground shadow-md shadow-primary/20 transition hover:brightness-110 active:scale-[0.98]"
+              onClick={() => navigate("/versus")}
+              className="w-full rounded-xl bg-primary py-4 text-lg font-bold text-primary-foreground shadow-md shadow-primary/20 transition hover:brightness-110 active:scale-[0.98] flex items-center justify-center gap-2"
             >
-              Study Mode
+              <Swords className="h-5 w-5 text-primary-foreground" />
+              Versus Mode
             </button>
             <button
-              onClick={() => navigate("/versus")}
-              className="w-full rounded-xl border border-border bg-card py-4 text-lg font-bold text-foreground flex items-center justify-center gap-2 shadow-sm transition hover:bg-secondary active:scale-[0.98]"
+              onClick={() => navigate("/study")}
+              className="w-full rounded-xl border border-border bg-card py-4 text-lg font-bold text-foreground shadow-sm transition hover:bg-secondary active:scale-[0.98]"
             >
-              <Swords className="h-5 w-5 text-primary" />
-              Versus Mode
+              Study Mode
             </button>
           </div>
 
