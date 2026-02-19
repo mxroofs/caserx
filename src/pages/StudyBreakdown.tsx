@@ -85,7 +85,7 @@ const StudyBreakdown = () => {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="border-b border-border px-3 sm:px-4 py-3">
-        <div className="mx-auto max-w-2xl max-sm:grid max-sm:grid-cols-[auto_1fr_auto] max-sm:items-center max-sm:gap-1 sm:flex sm:items-center sm:justify-between">
+        <div className="mx-auto max-w-2xl grid grid-cols-[auto_1fr_auto] items-center gap-2">
           <button
             onClick={() => navigate("/study")}
             className="inline-flex items-center gap-0.5 sm:gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] shrink-0"
@@ -93,7 +93,7 @@ const StudyBreakdown = () => {
             <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
             <span className="whitespace-nowrap">Back to Case</span>
           </button>
-          <h1 className="text-xs sm:text-sm font-bold text-foreground tracking-wide truncate text-center min-w-0 px-1">
+          <h1 className="text-xs sm:text-sm font-bold text-foreground tracking-wide text-center leading-tight line-clamp-2 min-w-0 px-1">
             Case {caseIndex + 1} of {totalCases} — Detailed Breakdown
           </h1>
           <button
