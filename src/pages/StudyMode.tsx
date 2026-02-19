@@ -2,9 +2,9 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
 import { reasoningChecksByCase, ReasoningCheck } from "@/data/reasoningChecks";
-import { ChevronDown, ChevronUp, CheckCircle2, XCircle, ArrowRight, RotateCcw, Activity, Lock, AlertTriangle, Sparkles, Coins, Home } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, XCircle, ArrowRight, RotateCcw, Activity, Lock, AlertTriangle, Sparkles, Coins } from "lucide-react";
 import { shuffleOptions } from "@/lib/shuffleOptions";
-import ExitConfirmDialog from "@/components/ExitConfirmDialog";
+import { setRoundActive } from "@/components/AppShell";
 
 const MIN_CHARS = 75;
 const STORAGE_KEY = "study-mode-currency";
@@ -28,7 +28,13 @@ const StudyMode = () => {
   const [finished, setFinished] = useState(false);
   const [currency, setCurrency] = useState(getStoredCurrency);
   const [deltaText, setDeltaText] = useState<string | null>(null);
-  const [showExitDialog, setShowExitDialog] = useState(false);
+
+  // Signal round-active to global shell
+  const isInRound = selectedId !== null || locked;
+  useEffect(() => {
+    setRoundActive(isInRound && !finished);
+    return () => setRoundActive(false);
+  }, [isInRound, finished]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, String(currency));
@@ -148,14 +154,6 @@ const StudyMode = () => {
     setFinished(false);
   };
 
-  const handleHomeClick = () => {
-    if (isSelected || isAnswered) {
-      setShowExitDialog(true);
-    } else {
-      navigate("/");
-    }
-  };
-
   const correctCount = results.filter(Boolean).length;
   const progress = ((currentIndex + (isAnswered ? 1 : 0)) / totalCases) * 100;
 
@@ -182,9 +180,9 @@ const StudyMode = () => {
             </button>
             <button
               onClick={() => navigate("/")}
-              className="w-full rounded-xl bg-secondary py-3 font-semibold text-secondary-foreground transition hover:brightness-110 flex items-center justify-center gap-2"
+              className="w-full rounded-xl bg-secondary py-3 font-semibold text-secondary-foreground transition hover:brightness-110"
             >
-              <Home className="h-4 w-4" /> Home
+              Home
             </button>
           </div>
         </div>
@@ -194,20 +192,12 @@ const StudyMode = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* Header */}
+      {/* Header — no local Home button */}
       <header className="border-b border-border px-4 py-3">
         <div className="mx-auto flex max-w-md items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleHomeClick}
-              className="flex items-center gap-1.5 rounded-lg bg-secondary px-2.5 py-1.5 text-xs font-semibold text-secondary-foreground transition hover:brightness-110 active:scale-[0.97]"
-            >
-              <Home className="h-3.5 w-3.5" /> Home
-            </button>
-            <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              <span className="text-sm font-bold text-foreground hidden sm:inline">Diabetes Decision Trainer</span>
-            </div>
+          <div className="flex items-center gap-2 pl-16 sm:pl-20">
+            <Activity className="h-5 w-5 text-primary" />
+            <span className="text-sm font-bold text-foreground">Diabetes Decision Trainer</span>
           </div>
           <div className="flex flex-col items-end relative">
             <div className="flex items-center gap-1.5">
@@ -252,17 +242,14 @@ const StudyMode = () => {
               )}
             </div>
 
-            {/* Metric chips */}
             <div className="grid grid-cols-3 gap-2 pt-4">
               <MetricChip label="A1C" value={currentCase.metrics.a1c} />
               <MetricChip label="eGFR" value={currentCase.metrics.egfr} />
               <MetricChip label="BMI" value={currentCase.metrics.bmi} />
             </div>
 
-            {/* Divider */}
             <div className="border-t border-border/60 my-0 !mt-4" />
 
-            {/* Comorbidities */}
             <div className="pt-3 pb-1">
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Comorbidities</h3>
               <ul className="space-y-1">
@@ -272,10 +259,8 @@ const StudyMode = () => {
               </ul>
             </div>
 
-            {/* Divider */}
             <div className="border-t border-border/60" />
 
-            {/* Current Meds */}
             <div className="pt-3">
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Current Medications</h3>
               <ul className="space-y-1">
@@ -286,7 +271,6 @@ const StudyMode = () => {
             </div>
           </div>
 
-          {/* Question */}
           <p className="text-center text-sm font-semibold text-foreground">Select the best next medication.</p>
 
           {/* Answer options — shuffled */}
@@ -324,7 +308,7 @@ const StudyMode = () => {
             })}
           </div>
 
-          {/* Explanation step (after selecting, before locking) */}
+          {/* Explanation step */}
           {isSelected && !locked && (
             <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="rounded-xl bg-card border border-border p-4 space-y-3">
@@ -360,17 +344,14 @@ const StudyMode = () => {
           {/* Answer reveal */}
           {isAnswered && (
             <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              {/* Best answer banner — uses shuffled label */}
               <div className={`rounded-xl p-3 text-center font-bold text-sm ${isCorrect ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
               {isCorrect ? "✓ Correct!" : `✗ Best Answer: ${correctDisplayLabel}. ${correctOption?.label}`}
               </div>
 
-              {/* Shallow reasoning warning */}
               {isCorrect && reasoningResults && reasoningResults.score === 0 && (
                 <p className="text-xs text-center text-warning font-medium italic">Correct answer, but shallow reasoning.</p>
               )}
 
-              {/* Reasoning score badge */}
               {reasoningResults && (
                 <div className="rounded-xl bg-card border border-border p-3 space-y-1.5">
                   <div className="flex items-center justify-center gap-2">
@@ -389,13 +370,11 @@ const StudyMode = () => {
                 </div>
               )}
 
-              {/* Your reasoning */}
               <div className="rounded-xl bg-card border border-border p-4 space-y-2">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Your reasoning</h3>
                 <p className="text-sm text-foreground whitespace-pre-wrap">{explanation}</p>
               </div>
 
-              {/* Reasoning analysis */}
               {reasoningResults && (
                 <div className="rounded-xl bg-card border border-border p-4 space-y-3">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Reasoning analysis</h3>
@@ -428,7 +407,6 @@ const StudyMode = () => {
                 </div>
               )}
 
-              {/* Why section */}
               <div className="rounded-xl bg-card border border-border p-4 space-y-2">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-primary">Why {correctOption?.label}?</h3>
                 <ul className="space-y-1">
@@ -438,7 +416,6 @@ const StudyMode = () => {
                 </ul>
               </div>
 
-              {/* Avoid section */}
               {currentCase.avoidList.length > 0 && (
                 <div className="rounded-xl bg-destructive/5 border border-destructive/20 p-4 space-y-2">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-destructive">Avoid</h3>
@@ -450,7 +427,6 @@ const StudyMode = () => {
                 </div>
               )}
 
-              {/* Next button */}
               <button
                 onClick={handleNext}
                 className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
@@ -462,7 +438,6 @@ const StudyMode = () => {
                 )}
               </button>
 
-              {/* Guidelines drawer */}
               <div className="rounded-xl border border-border overflow-hidden">
                 <button
                   onClick={() => setShowGuidelines((s) => !s)}
@@ -483,12 +458,6 @@ const StudyMode = () => {
           )}
         </div>
       </main>
-
-      <ExitConfirmDialog
-        open={showExitDialog}
-        onCancel={() => setShowExitDialog(false)}
-        onConfirm={() => navigate("/")}
-      />
     </div>
   );
 };
