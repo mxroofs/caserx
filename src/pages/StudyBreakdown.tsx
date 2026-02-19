@@ -13,9 +13,9 @@ const StudyBreakdown = () => {
     correctWhy: true,
     whySuboptimal: true,
     prioritize: true,
-    safety: false,
-    reasoning: false,
-    guidelines: false,
+    safety: true,
+    reasoning: true,
+    guidelines: true,
   });
 
   const allKeys = ["correctWhy", "whySuboptimal", "prioritize", "safety", "reasoning", "guidelines"];
