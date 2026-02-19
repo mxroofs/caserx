@@ -6,6 +6,7 @@ import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/card";
 
 const TURN_SECONDS = 60;
 const AUTO_ADVANCE_DELAY = 1000;
@@ -79,7 +80,7 @@ const VersusMode = () => {
   useEffect(() => { try { localStorage.setItem("versus_nameB", nameB); } catch {} }, [nameB]);
   useEffect(() => { try { localStorage.setItem("versus_autoAdvance", String(autoAdvance)); } catch {} }, [autoAdvance]);
 
-  // Signal round-active to global shell
+  // Signal round-active
   useEffect(() => {
     setRoundActive(phase === "playing");
     return () => setRoundActive(false);
@@ -200,40 +201,42 @@ const VersusMode = () => {
   if (phase === "ready") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm text-center space-y-8">
-          <div className="space-y-3">
-            <Swords className="h-8 w-8 text-primary mx-auto" />
-            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Versus Mode</h1>
-            <p className="text-sm text-muted-foreground">
-              Two players, {TURN_SECONDS}s each. Highest score wins.
-            </p>
-          </div>
+        <Card className="w-full max-w-sm">
+          <CardContent className="p-6 space-y-6 text-center">
+            <div className="space-y-3">
+              <Swords className="h-8 w-8 text-primary mx-auto" />
+              <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Versus Mode</h1>
+              <p className="text-sm text-muted-foreground">
+                Two players, {TURN_SECONDS}s each. Highest score wins.
+              </p>
+            </div>
 
-          <div className="space-y-3 text-left">
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Players</label>
-            <Input
-              placeholder="Player A"
-              value={nameA}
-              onChange={(e) => setNameA(e.target.value)}
-              className="h-10 text-sm bg-muted/40 border-0 focus-visible:ring-1 focus-visible:ring-primary/40"
-              maxLength={20}
-            />
-            <Input
-              placeholder="Player B"
-              value={nameB}
-              onChange={(e) => setNameB(e.target.value)}
-              className="h-10 text-sm bg-muted/40 border-0 focus-visible:ring-1 focus-visible:ring-primary/40"
-              maxLength={20}
-            />
-          </div>
+            <div className="space-y-3 text-left">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Players</label>
+              <Input
+                placeholder="Player A"
+                value={nameA}
+                onChange={(e) => setNameA(e.target.value)}
+                className="h-10 text-sm"
+                maxLength={20}
+              />
+              <Input
+                placeholder="Player B"
+                value={nameB}
+                onChange={(e) => setNameB(e.target.value)}
+                className="h-10 text-sm"
+                maxLength={20}
+              />
+            </div>
 
-          <button
-            onClick={handleStart}
-            className="w-full rounded-xl bg-primary py-4 font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.98]"
-          >
-            Start Game
-          </button>
-        </div>
+            <button
+              onClick={handleStart}
+              className="w-full rounded-xl bg-primary py-4 font-bold text-primary-foreground shadow-md shadow-primary/20 transition hover:brightness-110 active:scale-[0.98]"
+            >
+              Start Game
+            </button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -242,25 +245,27 @@ const VersusMode = () => {
   if (phase === "handoff") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm text-center space-y-8">
-          <div className="space-y-2">
-            <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Time's up</h2>
-            <p className="text-muted-foreground">
-              {displayName(0)}: <span className="font-bold text-foreground">{players[0].score}</span> pts ({players[0].answered} answered)
-            </p>
-          </div>
-          <div className="space-y-3 py-4">
-            <Swords className="h-6 w-6 text-primary mx-auto" />
-            <p className="text-lg font-bold text-foreground">Pass to {displayName(1)}</p>
-            <p className="text-sm text-muted-foreground">{TURN_SECONDS} seconds</p>
-          </div>
-          <button
-            onClick={handleStartPlayerB}
-            className="w-full rounded-xl bg-primary py-4 font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.98] flex items-center justify-center gap-2"
-          >
-            <ArrowRight className="h-5 w-5" /> {displayName(1)} — Go
-          </button>
-        </div>
+        <Card className="w-full max-w-sm">
+          <CardContent className="p-6 space-y-6 text-center">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Time's up</h2>
+              <p className="text-muted-foreground">
+                {displayName(0)}: <span className="font-bold text-foreground">{players[0].score}</span> pts ({players[0].answered} answered)
+              </p>
+            </div>
+            <div className="space-y-3 py-2">
+              <Swords className="h-6 w-6 text-primary mx-auto" />
+              <p className="text-lg font-bold text-foreground">Pass to {displayName(1)}</p>
+              <p className="text-sm text-muted-foreground">{TURN_SECONDS} seconds</p>
+            </div>
+            <button
+              onClick={handleStartPlayerB}
+              className="w-full rounded-xl bg-primary py-4 font-bold text-primary-foreground shadow-md shadow-primary/20 transition hover:brightness-110 active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <ArrowRight className="h-5 w-5" /> {displayName(1)} — Go
+            </button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -271,24 +276,26 @@ const VersusMode = () => {
     const winner = a.score > b.score ? displayName(0) : b.score > a.score ? displayName(1) : null;
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm text-center space-y-8">
-          <div className="space-y-2">
-            <Trophy className="h-8 w-8 text-primary mx-auto" />
-            <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
-              {winner ? `${winner} wins` : "It's a tie"}
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <ScoreCard label={displayName(0)} score={a.score} answered={a.answered} highlight={a.score >= b.score} />
-            <ScoreCard label={displayName(1)} score={b.score} answered={b.answered} highlight={b.score >= a.score} />
-          </div>
-          <button
-            onClick={handleRestart}
-            className="w-full rounded-xl bg-primary py-4 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
-          >
-            <RotateCcw className="h-5 w-5" /> Play Again
-          </button>
-        </div>
+        <Card className="w-full max-w-sm">
+          <CardContent className="p-6 space-y-6 text-center">
+            <div className="space-y-2">
+              <Trophy className="h-8 w-8 text-primary mx-auto" />
+              <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
+                {winner ? `${winner} wins` : "It's a tie"}
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <ScoreCard label={displayName(0)} score={a.score} answered={a.answered} highlight={a.score >= b.score} />
+              <ScoreCard label={displayName(1)} score={b.score} answered={b.answered} highlight={b.score >= a.score} />
+            </div>
+            <button
+              onClick={handleRestart}
+              className="w-full rounded-xl bg-primary py-4 font-bold text-primary-foreground shadow-md shadow-primary/20 flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
+            >
+              <RotateCcw className="h-5 w-5" /> Play Again
+            </button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -296,15 +303,15 @@ const VersusMode = () => {
   // ── Playing phase ──
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* Header — clean */}
-      <header className="px-4 py-3">
+      {/* Header */}
+      <header className="border-b border-border px-4 py-3">
         <div className="mx-auto flex max-w-md items-center justify-between">
           <div className="flex items-center gap-2 pl-16 sm:pl-20">
-            <span className="text-sm font-semibold text-muted-foreground">
+            <h1 className="text-sm font-bold text-foreground">
               {displayName(activePlayer)}'s turn
-            </span>
+            </h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 pr-16 sm:pr-20">
             <div className="flex items-center gap-1.5">
               <label htmlFor="auto-adv" className="text-[10px] text-muted-foreground select-none">Auto</label>
               <Switch
@@ -325,8 +332,8 @@ const VersusMode = () => {
         </div>
       </header>
 
-      {/* Timer bar — subtle */}
-      <div className="h-0.5 w-full bg-muted">
+      {/* Timer bar */}
+      <div className="h-1 w-full bg-muted">
         <div
           className={`h-full transition-all duration-1000 ease-linear ${timeLeft <= 10 ? "bg-destructive/70" : timeLeft <= 20 ? "bg-warning/70" : "bg-primary/50"}`}
           style={{ width: `${timerPct}%` }}
@@ -336,27 +343,27 @@ const VersusMode = () => {
       {/* Main */}
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-md px-4 py-4 space-y-4">
-          {/* Patient — clean layout */}
-          <div className="space-y-3">
-            <div className="flex items-start justify-between">
-              <h2 className="text-lg font-bold text-foreground leading-snug tracking-tight">{currentCase.patient_stem_short}</h2>
-              {currentCase.backgroundFlag && (
-                <span className="text-sm text-muted-foreground ml-3 shrink-0">
-                  {currentCase.backgroundFlag} {currentCase.backgroundCountry}
-                </span>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <LabPill label="A1C" value={currentCase.metrics.a1c} />
-              <LabPill label="eGFR" value={currentCase.metrics.egfr} />
-              <LabPill label="BMI" value={currentCase.metrics.bmi} />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {currentCase.comorbidities.join(" · ")} — {currentCase.current_meds.join(", ")}
-            </p>
-          </div>
-
-          <div className="h-px bg-border/40" />
+          {/* Patient card — boxed */}
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <h2 className="text-lg font-bold text-foreground leading-snug tracking-tight">{currentCase.patient_stem_short}</h2>
+                {currentCase.backgroundFlag && (
+                  <span className="text-sm text-muted-foreground ml-3 shrink-0">
+                    {currentCase.backgroundFlag} {currentCase.backgroundCountry}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <LabPill label="A1C" value={currentCase.metrics.a1c} />
+                <LabPill label="eGFR" value={currentCase.metrics.egfr} />
+                <LabPill label="BMI" value={currentCase.metrics.bmi} />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {currentCase.comorbidities.join(" · ")} — {currentCase.current_meds.join(", ")}
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Confidence */}
           <div className="space-y-1">
@@ -369,12 +376,12 @@ const VersusMode = () => {
                     key={level}
                     onClick={() => !isLocked && setConfidence(level)}
                     disabled={isLocked}
-                    className={`rounded-full px-3 py-1 text-xs font-semibold capitalize transition ${
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold capitalize transition ${
                       selected
-                        ? "bg-primary/15 text-primary"
+                        ? "border-primary bg-primary/15 text-primary"
                         : isLocked
-                        ? "text-muted-foreground/40 cursor-default"
-                        : "text-muted-foreground hover:text-foreground cursor-pointer"
+                        ? "border-border text-muted-foreground/40 cursor-default"
+                        : "border-border text-muted-foreground hover:text-foreground cursor-pointer"
                     }`}
                   >
                     {level}
@@ -400,31 +407,31 @@ const VersusMode = () => {
           {/* Question */}
           <h3 className="text-center text-base font-bold text-foreground tracking-tight">Best next medication?</h3>
 
-          {/* Options — list style */}
-          <div className="space-y-1.5">
+          {/* Options — card buttons */}
+          <div className="space-y-2">
             {shuffledOptions.map((opt) => {
               const disabled = revealed;
-              let style = "text-foreground/90 hover:bg-muted/60";
+              let style = "border-border hover:border-primary/40 hover:bg-primary/5";
               if (revealed) {
                 if (opt.originalId === currentCase.correctOptionId) {
-                  style = "text-success bg-success/5";
+                  style = "border-success/40 bg-success/5";
                 } else if (opt.originalId === selectedId) {
-                  style = "text-destructive bg-destructive/5";
+                  style = "border-destructive/40 bg-destructive/5";
                 } else {
-                  style = "text-muted-foreground opacity-50";
+                  style = "border-border opacity-50";
                 }
               } else if (opt.originalId === selectedId) {
-                style = "text-primary bg-primary/8";
+                style = "border-primary bg-primary/8 ring-1 ring-primary/20";
               }
               return (
                 <button
                   key={opt.originalId}
                   onClick={() => handleSelect(opt.originalId)}
                   disabled={disabled}
-                  className={`w-full rounded-lg py-2.5 px-4 text-left text-sm transition-colors ${style} ${!disabled ? "cursor-pointer" : "cursor-default"}`}
+                  className={`w-full rounded-lg border py-3 px-4 text-left text-sm transition-all ${style} ${!disabled ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <span className="font-semibold mr-1.5 text-muted-foreground">{opt.displayLabel}.</span>
-                  <span className="font-medium">{opt.label}</span>
+                  <span className="font-medium text-foreground">{opt.label}</span>
                   {revealed && opt.originalId === currentCase.correctOptionId && (
                     <CheckCircle2 className="inline ml-2 h-3.5 w-3.5 text-success" />
                   )}
@@ -440,7 +447,7 @@ const VersusMode = () => {
           {selectedId && !revealed && (
             <button
               onClick={handleConfirm}
-              className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.98]"
+              className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground shadow-md shadow-primary/20 transition hover:brightness-110 active:scale-[0.98]"
             >
               Confirm
             </button>
@@ -448,48 +455,50 @@ const VersusMode = () => {
 
           {/* Feedback */}
           {revealed && roundResult && (
-            <div className="space-y-3 animate-in fade-in duration-200">
-              {/* Result indicator */}
-              <div className="flex items-center justify-center gap-2">
-                {roundResult.correct ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 text-success" />
-                    <span className="text-sm font-bold text-success">Correct</span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="h-4 w-4 text-destructive" />
-                    <span className="text-sm font-bold text-destructive">Incorrect — {correctDisplayLabel}</span>
-                  </>
-                )}
-              </div>
+            <Card className="animate-in fade-in duration-200">
+              <CardContent className="p-4 space-y-3">
+                {/* Result indicator */}
+                <div className="flex items-center justify-center gap-2">
+                  {roundResult.correct ? (
+                    <>
+                      <CheckCircle2 className="h-5 w-5 text-success" />
+                      <span className="text-sm font-bold text-success">Correct</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-5 w-5 text-destructive" />
+                      <span className="text-sm font-bold text-destructive">Incorrect — {correctDisplayLabel}</span>
+                    </>
+                  )}
+                </div>
 
-              {/* Clinical rationale — compact */}
-              <div className="space-y-1.5">
-                <p className="text-xs font-bold uppercase tracking-wider text-primary/80">
-                  Why {currentCase.options.find(o => o.id === currentCase.correctOptionId)?.label}?
-                </p>
-                <p className="text-sm text-foreground/80 leading-relaxed">{currentCase.whyCorrect[0]}</p>
-                {!roundResult.correct && selectedId && (
-                  <p className="text-sm text-destructive/70 pl-3 border-l-2 border-destructive/20">
-                    {currentCase.incorrectRationale?.[selectedId] || "This option lacks the specific benefit needed here."}
+                {/* Clinical rationale — compact */}
+                <div className="space-y-1.5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-primary/80">
+                    Why {currentCase.options.find(o => o.id === currentCase.correctOptionId)?.label}?
                   </p>
+                  <p className="text-sm text-foreground/80 leading-relaxed">{currentCase.whyCorrect[0]}</p>
+                  {!roundResult.correct && selectedId && (
+                    <p className="text-sm text-destructive/70 pl-3 border-l-2 border-destructive/20">
+                      {currentCase.incorrectRationale?.[selectedId] || "This option lacks the specific benefit needed here."}
+                    </p>
+                  )}
+                </div>
+
+                <p className={`text-center text-xs font-semibold ${roundResult.delta > 0 ? "text-success/80" : roundResult.delta < 0 ? "text-destructive/80" : "text-muted-foreground"}`}>
+                  <span className="capitalize">{roundResult.confidence}</span> · {roundResult.delta > 0 ? "+" : ""}{roundResult.delta}
+                </p>
+
+                {!autoAdvance && (
+                  <button
+                    onClick={handleNextCase}
+                    className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
+                  >
+                    Next <ArrowRight className="h-4 w-4" />
+                  </button>
                 )}
-              </div>
-
-              <p className={`text-center text-xs font-semibold ${roundResult.delta > 0 ? "text-success/80" : roundResult.delta < 0 ? "text-destructive/80" : "text-muted-foreground"}`}>
-                <span className="capitalize">{roundResult.confidence}</span> · {roundResult.delta > 0 ? "+" : ""}{roundResult.delta}
-              </p>
-
-              {!autoAdvance && (
-                <button
-                  onClick={handleNextCase}
-                  className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
-                >
-                  Next <ArrowRight className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+              </CardContent>
+            </Card>
           )}
         </div>
       </main>
@@ -507,7 +516,7 @@ const LabPill = ({ label, value }: { label: string; value: string }) => (
 );
 
 const ScoreCard = ({ label, score, answered, highlight }: { label: string; score: number; answered: number; highlight: boolean }) => (
-  <div className={`rounded-xl p-5 space-y-1 ${highlight ? "bg-primary/8" : "bg-muted/30"}`}>
+  <div className={`rounded-xl border p-5 space-y-1 ${highlight ? "border-primary/30 bg-primary/5" : "border-border bg-card"}`}>
     <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
     <p className="text-3xl font-extrabold text-foreground">{score}</p>
     <p className="text-xs text-muted-foreground">{answered} answered</p>
