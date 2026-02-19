@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 
 const TURN_SECONDS = 60;
-const AUTO_ADVANCE_DELAY = 1000;
+const AUTO_ADVANCE_DELAY = 1800;
 
 type Phase = "ready" | "playing" | "handoff" | "results";
 type Confidence = "low" | "medium" | "high";
@@ -164,6 +164,29 @@ const VersusMode = () => {
       }, AUTO_ADVANCE_DELAY);
     }
   };
+
+  // Auto-advance countdown state
+  const [autoCountdown, setAutoCountdown] = useState<number | null>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (revealed && autoAdvance) {
+      setAutoCountdown(Math.ceil(AUTO_ADVANCE_DELAY / 1000));
+      countdownRef.current = setInterval(() => {
+        setAutoCountdown((prev) => {
+          if (prev !== null && prev <= 1) {
+            if (countdownRef.current) clearInterval(countdownRef.current);
+            return null;
+          }
+          return prev !== null ? prev - 1 : null;
+        });
+      }, 1000);
+    } else {
+      setAutoCountdown(null);
+      if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+    }
+    return () => { if (countdownRef.current) clearInterval(countdownRef.current); };
+  }, [revealed, autoAdvance]);
 
   const handleNextCase = () => {
     if (autoAdvanceRef.current) { clearTimeout(autoAdvanceRef.current); autoAdvanceRef.current = null; }
@@ -485,29 +508,43 @@ const VersusMode = () => {
                   <span className="capitalize">{roundResult.confidence}</span> · {roundResult.delta > 0 ? "+" : ""}{roundResult.delta}
                 </p>
 
-                {/* Auto-advance toggle */}
-                <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                  <div>
-                    <label htmlFor="auto-adv" className="text-xs font-medium text-foreground select-none">Auto-advance next round</label>
-                    <p className="text-[10px] text-muted-foreground">Moves to the next round after feedback.</p>
+                {/* Auto-advance toggle + Next button */}
+                <div className="border-t border-border/50 pt-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label htmlFor="auto-adv" className="text-xs font-medium text-foreground select-none">Auto-advance next round</label>
+                      <p className="text-[10px] text-muted-foreground">Moves to the next round after feedback.</p>
+                    </div>
+                    <Switch
+                      id="auto-adv"
+                      checked={autoAdvance}
+                      onCheckedChange={setAutoAdvance}
+                    />
                   </div>
-                  <Switch
-                    id="auto-adv"
-                    checked={autoAdvance}
-                    onCheckedChange={setAutoAdvance}
-                  />
-                </div>
 
-                {!autoAdvance && (
                   <button
                     onClick={handleNextCase}
                     className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
                   >
-                    Next <ArrowRight className="h-4 w-4" />
+                    {autoAdvance && autoCountdown !== null ? (
+                      <>Next in {autoCountdown}s…</>
+                    ) : (
+                      <>Next <ArrowRight className="h-4 w-4" /></>
+                    )}
                   </button>
-                )}
+                </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* Next button always visible — disabled until submission */}
+          {!revealed && !selectedId && (
+            <button
+              disabled
+              className="w-full rounded-xl bg-primary/30 py-3 font-bold text-primary-foreground/50 cursor-not-allowed"
+            >
+              Next <ArrowRight className="inline h-4 w-4 ml-1" />
+            </button>
           )}
         </div>
       </main>
