@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
 import { reasoningChecksByCase, ReasoningCheck } from "@/data/reasoningChecks";
@@ -6,31 +6,38 @@ import { ChevronDown, CheckCircle2, XCircle, ArrowRight, RotateCcw, Lock, AlertT
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
-import { setStudySnapshot } from "@/stores/studySessionStore";
+import { setStudySnapshot, saveSession, loadSession, clearSession, type StudySessionState } from "@/stores/studySessionStore";
 
 const MIN_CHARS = 75;
 const STORAGE_KEY = "study-mode-currency";
 
-const getStoredCurrency = (): number => {
-  try {
-    const val = localStorage.getItem(STORAGE_KEY);
-    return val ? parseInt(val, 10) : 50;
-  } catch { return 100; }
-};
-
 const StudyMode = () => {
   const navigate = useNavigate();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [explanation, setExplanation] = useState("");
-  const [locked, setLocked] = useState(false);
-  const [showGuidelines, setShowGuidelines] = useState(false);
-  const [showReasoning, setShowReasoning] = useState(false);
-  const [showAnalysis, setShowAnalysis] = useState(false);
-  const [results, setResults] = useState<boolean[]>([]);
-  const [finished, setFinished] = useState(false);
-  const [currency, setCurrency] = useState(getStoredCurrency);
-  const [deltaText, setDeltaText] = useState<string | null>(null);
+
+  // Restore persisted session or start fresh
+  const initial = useRef(loadSession());
+  const init = initial.current;
+
+  const [currentIndex, setCurrentIndex] = useState(init?.currentIndex ?? 0);
+  const [selectedId, setSelectedId] = useState<string | null>(init?.selectedId ?? null);
+  const [explanation, setExplanation] = useState(init?.explanation ?? "");
+  const [locked, setLocked] = useState(init?.locked ?? false);
+  const [showGuidelines, setShowGuidelines] = useState(init?.showGuidelines ?? false);
+  const [showReasoning, setShowReasoning] = useState(init?.showReasoning ?? false);
+  const [showAnalysis, setShowAnalysis] = useState(init?.showAnalysis ?? false);
+  const [results, setResults] = useState<boolean[]>(init?.results ?? []);
+  const [finished, setFinished] = useState(init?.finished ?? false);
+  const [currency, setCurrency] = useState(init?.currency ?? 50);
+  const [deltaText, setDeltaText] = useState<string | null>(init?.deltaText ?? null);
+
+  // Persist session on every state change
+  useEffect(() => {
+    const session: StudySessionState = {
+      currentIndex, selectedId, explanation, locked, results,
+      finished, currency, deltaText, showGuidelines, showReasoning, showAnalysis,
+    };
+    saveSession(session);
+  }, [currentIndex, selectedId, explanation, locked, results, finished, currency, deltaText, showGuidelines, showReasoning, showAnalysis]);
 
   const isInRound = selectedId !== null || locked;
   useEffect(() => {
@@ -159,6 +166,7 @@ const StudyMode = () => {
     setShowAnalysis(false);
     setResults([]);
     setFinished(false);
+    clearSession();
   };
 
   const correctCount = results.filter(Boolean).length;
