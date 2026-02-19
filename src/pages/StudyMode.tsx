@@ -150,7 +150,7 @@ const StudyMode = () => {
       setLocked(false);
       setShowGuidelines(false);
       setShowReasoning(false);
-      setShowAnalysis(false);
+      setShowAnalysis(true);
       setResults((prev) => prev);
       setDeltaText(null);
     }
