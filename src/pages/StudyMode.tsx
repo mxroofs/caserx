@@ -2,10 +2,11 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
 import { reasoningChecksByCase, ReasoningCheck } from "@/data/reasoningChecks";
-import { ChevronDown, CheckCircle2, XCircle, ArrowRight, RotateCcw, Lock, AlertTriangle, Sparkles, Coins } from "lucide-react";
+import { ChevronDown, CheckCircle2, XCircle, ArrowRight, RotateCcw, Lock, AlertTriangle, Sparkles, Coins, FileText } from "lucide-react";
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
+import { setStudySnapshot } from "@/stores/studySessionStore";
 
 const MIN_CHARS = 75;
 const STORAGE_KEY = "study-mode-currency";
@@ -452,17 +453,40 @@ const StudyMode = () => {
 
                 <div className="h-px bg-border" />
 
-                {/* Next button */}
-                <button
-                  onClick={handleNext}
-                  className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
-                >
-                  {currentIndex + 1 < totalCases ? (
-                    <>Next Case <ArrowRight className="h-4 w-4" /></>
-                  ) : (
-                    "Finish Session"
-                  )}
-                </button>
+                {/* Action buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleNext}
+                    className="flex-1 rounded-xl bg-primary py-3 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
+                  >
+                    {currentIndex + 1 < totalCases ? (
+                      <>Next Case <ArrowRight className="h-4 w-4" /></>
+                    ) : (
+                      "Finish Session"
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setStudySnapshot({
+                        caseData: currentCase,
+                        caseIndex: currentIndex,
+                        totalCases,
+                        selectedId: selectedId!,
+                        isCorrect,
+                        explanation,
+                        correctDisplayLabel,
+                        reasoningScore: reasoningResults?.score ?? 0,
+                        prioritySignal: reasoningResults?.prioritySignal ?? "",
+                        hits: reasoningResults?.hits.map(h => ({ label: h.label, hitFeedback: h.hitFeedback })) ?? [],
+                        misses: reasoningResults?.misses.map(m => ({ label: m.label, missFeedback: m.missFeedback })) ?? [],
+                      });
+                      navigate("/study/breakdown");
+                    }}
+                    className="rounded-xl border border-border bg-secondary px-4 py-3 text-sm font-semibold text-secondary-foreground flex items-center gap-1.5 transition hover:brightness-110 active:scale-[0.98]"
+                  >
+                    <FileText className="h-4 w-4" /> Breakdown
+                  </button>
+                </div>
 
                 {/* Guidelines toggle */}
                 <CollapsibleSection
