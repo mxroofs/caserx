@@ -208,11 +208,13 @@ const StudyMode = () => {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="border-b border-border px-4 py-3">
-        <div className="mx-auto flex max-w-md items-center justify-between">
-          <div className="pl-16 sm:pl-20">
-            <h1 className="text-sm font-bold text-foreground tracking-wide">Study Mode</h1>
+        <div className="relative flex items-center justify-center">
+          {/* Center: title aligned to content column */}
+          <div className="w-full max-w-md">
+            <h1 className="text-sm font-bold text-foreground tracking-wide text-center">Study Mode</h1>
           </div>
-          <div className="flex items-center gap-1.5 pr-16 sm:pr-20">
+          {/* Right: currency — absolutely positioned to avoid pushing center */}
+          <div className="absolute right-0 pr-14 sm:pr-16 flex items-center gap-1.5">
             <Coins className="h-3.5 w-3.5 text-primary/70" />
             <span className="text-sm font-bold text-foreground">{currency}</span>
             {deltaText && (
