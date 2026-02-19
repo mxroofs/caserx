@@ -381,9 +381,9 @@ const VersusMode = () => {
           </Card>
 
           {/* Confidence */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-center">Confidence</p>
-            <div className="flex items-center justify-center gap-2.5">
+            <div className="flex items-center justify-center gap-3">
               {(["low", "medium", "high"] as Confidence[]).map((level) => {
                 const selected = confidence === level;
                 const isLocked = selectedId !== null;
@@ -405,23 +405,24 @@ const VersusMode = () => {
                 );
               })}
             </div>
-            {/* Scoring toggle */}
-            <div className="flex justify-center">
-              <button
-                onClick={() => setShowScoring(!showScoring)}
-                className="flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition"
-              >
-                {showScoring ? "Hide scoring" : "How scoring works"}
-                <ChevronDown className={`h-2.5 w-2.5 transition-transform ${showScoring ? "rotate-180" : ""}`} />
-              </button>
-            </div>
-            {showScoring && (
-              <div className="text-[10px] text-muted-foreground text-center space-y-0.5 animate-in fade-in duration-150">
-                <p>✓ High +2 · Med +1 · Low +0</p>
-                <p>✗ High −2 · Med −1 · Low 0</p>
-              </div>
-            )}
           </div>
+
+          {/* How scoring works */}
+          <div className="flex justify-center pt-1">
+            <button
+              onClick={() => setShowScoring(!showScoring)}
+              className="flex items-center gap-1.5 text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition"
+            >
+              {showScoring ? "Hide scoring" : "How scoring works"}
+              <ChevronDown className={`h-3 w-3 transition-transform ${showScoring ? "rotate-180" : ""}`} />
+            </button>
+          </div>
+          {showScoring && (
+            <div className="text-[10px] text-muted-foreground text-center space-y-0.5 animate-in fade-in duration-150">
+              <p>✓ High +2 · Med +1 · Low +0</p>
+              <p>✗ High −2 · Med −1 · Low 0</p>
+            </div>
+          )}
 
           {/* Question */}
           <h3 className="text-center text-base font-bold text-foreground tracking-tight">Best next medication?</h3>
@@ -508,12 +509,12 @@ const VersusMode = () => {
                   <span className="capitalize">{roundResult.confidence}</span> · {roundResult.delta > 0 ? "+" : ""}{roundResult.delta}
                 </p>
 
-                {/* Auto-advance toggle + Next button */}
+                {/* Auto-advance + Next */}
                 <div className="border-t border-border/50 pt-3 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <label htmlFor="auto-adv" className="text-xs font-medium text-foreground select-none">Auto-advance next round</label>
-                      <p className="text-[10px] text-muted-foreground">Moves to the next round after feedback.</p>
+                      <label htmlFor="auto-adv" className="text-xs font-medium text-foreground select-none">Auto-advance (2s)</label>
+                      <p className="text-[10px] text-muted-foreground">Automatically moves to the next round after feedback.</p>
                     </div>
                     <Switch
                       id="auto-adv"
@@ -522,23 +523,31 @@ const VersusMode = () => {
                     />
                   </div>
 
-                  <button
-                    onClick={handleNextCase}
-                    className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
-                  >
-                    {autoAdvance && autoCountdown !== null ? (
-                      <>Next in {autoCountdown}s…</>
-                    ) : (
-                      <>Next <ArrowRight className="h-4 w-4" /></>
+                  <div className="relative overflow-hidden rounded-xl">
+                    {autoAdvance && autoCountdown !== null && (
+                      <div
+                        className="absolute inset-0 bg-primary-foreground/10 transition-all duration-1000 ease-linear"
+                        style={{ width: `${((Math.ceil(AUTO_ADVANCE_DELAY / 1000) - (autoCountdown ?? 0)) / Math.ceil(AUTO_ADVANCE_DELAY / 1000)) * 100}%` }}
+                      />
                     )}
-                  </button>
+                    <button
+                      onClick={handleNextCase}
+                      className="relative w-full py-3 bg-primary font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
+                    >
+                      {autoAdvance && autoCountdown !== null ? (
+                        <>Next in {autoCountdown}s…</>
+                      ) : (
+                        <>Next <ArrowRight className="h-4 w-4" /></>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Next button always visible — disabled until submission */}
-          {!revealed && !selectedId && (
+          {/* Next button — always visible, disabled until submission */}
+          {!revealed && (
             <button
               disabled
               className="w-full rounded-xl bg-primary/30 py-3 font-bold text-primary-foreground/50 cursor-not-allowed"

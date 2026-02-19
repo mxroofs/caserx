@@ -405,20 +405,20 @@ const StudyMode = () => {
                         open={showAnalysis}
                         onToggle={() => setShowAnalysis(!showAnalysis)}
                         prominent
+                        badge={
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                            reasoningResults.score <= 1 ? "bg-destructive/10 text-destructive" :
+                            reasoningResults.score === 2 ? "bg-warning/10 text-warning" :
+                            "bg-success/10 text-success"
+                          }`}>
+                            Score {reasoningResults.score}/4
+                          </span>
+                        }
                       >
                         <div className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                              reasoningResults.score <= 1 ? "bg-destructive/10 text-destructive" :
-                              reasoningResults.score === 2 ? "bg-warning/10 text-warning" :
-                              "bg-success/10 text-success"
-                            }`}>
-                              {reasoningResults.score}/4
-                            </span>
-                            {reasoningResults.prioritySignal && (
-                              <span className="text-xs text-muted-foreground italic">{reasoningResults.prioritySignal}</span>
-                            )}
-                          </div>
+                          {reasoningResults.prioritySignal && (
+                            <p className="text-xs text-muted-foreground italic">{reasoningResults.prioritySignal}</p>
+                          )}
                           {reasoningResults.lowQuality && (
                             <div className="flex items-start gap-2 text-xs text-warning/80">
                               <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
@@ -550,26 +550,28 @@ const LabPill = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
-const CollapsibleSection = ({ title, icon, open, onToggle, children, prominent }: {
+const CollapsibleSection = ({ title, icon, open, onToggle, children, prominent, badge }: {
   title: string;
   icon?: React.ReactNode;
   open: boolean;
   onToggle: () => void;
   children: React.ReactNode;
   prominent?: boolean;
+  badge?: React.ReactNode;
 }) => (
   <div>
     <button
       onClick={onToggle}
-      className={`flex items-center gap-1.5 transition-colors ${
+      className={`flex items-center gap-1.5 w-full transition-colors ${
         prominent
           ? "text-sm font-bold text-foreground hover:text-primary"
           : "text-xs font-semibold text-muted-foreground hover:text-foreground"
       }`}
     >
-      <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      <ChevronDown className={`h-3 w-3 transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`} />
       {icon}
-      {title}
+      <span>{title}</span>
+      {badge && <span className="ml-auto">{badge}</span>}
     </button>
     {open && (
       <div className="mt-2 pl-1 animate-in fade-in slide-in-from-top-1 duration-200">
