@@ -85,31 +85,24 @@ const StudyBreakdown = () => {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="border-b border-border px-3 sm:px-4 py-3">
-        <div className="mx-auto flex max-w-2xl items-center justify-between relative max-sm:min-h-[44px]">
-          {/* Left lane */}
-          <div className="max-sm:min-w-[96px] flex items-center justify-start">
-            <button
-              onClick={() => navigate("/study")}
-              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
-            >
-              <ArrowLeft className="h-4 w-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">Back to Case</span>
-            </button>
-          </div>
-          {/* Center title — absolutely centered on mobile */}
-          <h1 className="text-sm font-bold text-foreground tracking-wide max-sm:absolute max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:top-1/2 max-sm:-translate-y-1/2 max-sm:max-w-[52%] max-sm:truncate max-sm:text-center max-sm:pointer-events-none">
+        <div className="mx-auto max-w-2xl max-sm:grid max-sm:grid-cols-[auto_1fr_auto] max-sm:items-center max-sm:gap-1 sm:flex sm:items-center sm:justify-between">
+          <button
+            onClick={() => navigate("/study")}
+            className="inline-flex items-center gap-0.5 sm:gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] shrink-0"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+            <span className="whitespace-nowrap">Back to Case</span>
+          </button>
+          <h1 className="text-xs sm:text-sm font-bold text-foreground tracking-wide truncate text-center min-w-0 px-1">
             Case {caseIndex + 1} of {totalCases} — Detailed Breakdown
           </h1>
-          {/* Right lane */}
-          <div className="max-sm:min-w-[96px] flex items-center justify-end">
-            <button
-              onClick={toggleAll}
-              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] whitespace-nowrap"
-            >
-              <ChevronsUpDown className="h-3.5 w-3.5 flex-shrink-0" />
-              {allOpen ? "Collapse all" : "Expand all"}
-            </button>
-          </div>
+          <button
+            onClick={toggleAll}
+            className="inline-flex items-center gap-0.5 sm:gap-1 rounded-lg px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] whitespace-nowrap shrink-0"
+          >
+            <ChevronsUpDown className="h-3.5 w-3.5 flex-shrink-0" />
+            {allOpen ? "Collapse all" : "Expand all"}
+          </button>
         </div>
       </header>
 
