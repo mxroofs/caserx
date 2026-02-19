@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy, ChevronDown } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy, ChevronDown, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
@@ -43,6 +44,7 @@ const getStoredAutoAdvance = (): boolean => {
 
 const VersusMode = () => {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   const [phase, setPhase] = useState<Phase>("ready");
   const [activePlayer, setActivePlayer] = useState<0 | 1>(0);
@@ -305,22 +307,28 @@ const VersusMode = () => {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="border-b border-border px-4 py-3">
-        <div className="relative flex items-center justify-center">
-          {/* Center: title aligned to content column */}
-          <div className="w-full max-w-md">
-            <h1 className="text-sm font-bold text-foreground text-center">
-              {displayName(activePlayer)}'s turn
-            </h1>
+        <div className="mx-auto flex max-w-md items-center justify-between">
+          {/* Left: timer */}
+          <div className="flex items-center gap-1 w-16">
+            <Timer className={`h-3.5 w-3.5 ${timerColor}`} />
+            <span className={`text-sm font-bold tabular-nums ${timerColor}`}>{timeLeft}s</span>
           </div>
-          {/* Right: score + timer — absolutely positioned */}
-          <div className="absolute right-0 pr-14 sm:pr-16 flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">
+          {/* Center: title */}
+          <h1 className="text-sm font-bold text-foreground text-center">
+            {displayName(activePlayer)}'s turn
+          </h1>
+          {/* Right: points + theme */}
+          <div className="flex items-center gap-3 w-16 justify-end">
+            <span className="text-sm text-muted-foreground whitespace-nowrap">
               <span className="font-bold text-foreground">{currentPlayer.score}</span> pts
             </span>
-            <div className="flex items-center gap-1">
-              <Timer className={`h-3.5 w-3.5 ${timerColor}`} />
-              <span className={`text-sm font-bold tabular-nums ${timerColor}`}>{timeLeft}s</span>
-            </div>
+            <button
+              onClick={toggleTheme}
+              className="flex items-center justify-center rounded-lg p-1.5 text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
           </div>
         </div>
       </header>
@@ -359,31 +367,35 @@ const VersusMode = () => {
           </Card>
 
           {/* Confidence + Auto toggle */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-center gap-2">
-              {(["low", "medium", "high"] as Confidence[]).map((level) => {
-                const selected = confidence === level;
-                const isLocked = selectedId !== null;
-                return (
-                  <button
-                    key={level}
-                    onClick={() => !isLocked && setConfidence(level)}
-                    disabled={isLocked}
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold capitalize transition ${
-                      selected
-                        ? "border-primary bg-primary/15 text-primary"
-                        : isLocked
-                        ? "border-border text-muted-foreground/40 cursor-default"
-                        : "border-border text-muted-foreground hover:text-foreground cursor-pointer"
-                    }`}
-                  >
-                    {level}
-                  </button>
-                );
-              })}
-              {/* Auto-advance toggle — beside confidence pills */}
-              <div className="flex items-center gap-1.5 ml-2 pl-2 border-l border-border/50">
-                <label htmlFor="auto-adv" className="text-[10px] text-muted-foreground select-none">Auto</label>
+          <div className="space-y-2.5">
+            {/* Label + pills row */}
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Confidence</span>
+              <div className="flex items-center gap-2">
+                {(["low", "medium", "high"] as Confidence[]).map((level) => {
+                  const selected = confidence === level;
+                  const isLocked = selectedId !== null;
+                  return (
+                    <button
+                      key={level}
+                      onClick={() => !isLocked && setConfidence(level)}
+                      disabled={isLocked}
+                      className={`rounded-full border px-4 py-1.5 text-xs font-bold capitalize transition ${
+                        selected
+                          ? "border-primary bg-primary/15 text-primary"
+                          : isLocked
+                          ? "border-border text-muted-foreground/40 cursor-default"
+                          : "border-border text-muted-foreground hover:text-foreground cursor-pointer"
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  );
+                })}
+              </div>
+              {/* Auto-advance toggle */}
+              <div className="flex items-center gap-1.5 pl-3 border-l border-border/50">
+                <label htmlFor="auto-adv" className="text-[10px] font-medium text-muted-foreground select-none">Auto</label>
                 <Switch
                   id="auto-adv"
                   checked={autoAdvance}
@@ -392,13 +404,16 @@ const VersusMode = () => {
                 />
               </div>
             </div>
-            <button
-              onClick={() => setShowScoring(!showScoring)}
-              className="mx-auto flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition"
-            >
-              {showScoring ? "Hide" : "Scoring"}
-              <ChevronDown className={`h-2.5 w-2.5 transition-transform ${showScoring ? "rotate-180" : ""}`} />
-            </button>
+            {/* Scoring toggle — separate row */}
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowScoring(!showScoring)}
+                className="flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition"
+              >
+                {showScoring ? "Hide scoring" : "How scoring works"}
+                <ChevronDown className={`h-2.5 w-2.5 transition-transform ${showScoring ? "rotate-180" : ""}`} />
+              </button>
+            </div>
             {showScoring && (
               <div className="text-[10px] text-muted-foreground text-center space-y-0.5 animate-in fade-in duration-150">
                 <p>✓ High +2 · Med +1 · Low +0</p>
