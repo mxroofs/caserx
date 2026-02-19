@@ -1,14 +1,73 @@
 import { useNavigate } from "react-router-dom";
 import { Activity, Swords, Brain, Gauge, Users } from "lucide-react";
+import { useRef, useEffect, useCallback } from "react";
 
 const Home = () => {
   const navigate = useNavigate();
+  const heroRef = useRef<HTMLElement>(null);
+
+  // Mouse-tracking spotlight
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+    // Respect prefers-reduced-motion
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq.matches) return;
+
+    let rafId: number | null = null;
+    const onMove = (e: MouseEvent) => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        const rect = el.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        el.style.setProperty("--mouse-x", `${x}%`);
+        el.style.setProperty("--mouse-y", `${y}%`);
+        el.style.setProperty("--spotlight-opacity", "1");
+        rafId = null;
+      });
+    };
+    const onLeave = () => {
+      el.style.setProperty("--spotlight-opacity", "0");
+    };
+
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      el.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* Hero */}
-      <main className="flex flex-1 flex-col items-center justify-center px-4 py-16">
-        <div className="w-full max-w-lg text-center space-y-8">
+      {/* Hero with gradient + mouse spotlight */}
+      <main
+        ref={heroRef}
+        className="relative flex flex-1 flex-col items-center justify-center px-4 py-16 overflow-hidden"
+        style={{
+          "--mouse-x": "50%",
+          "--mouse-y": "50%",
+          "--spotlight-opacity": "0",
+          background:
+            "radial-gradient(ellipse 80% 60% at 20% 30%, hsl(var(--primary) / 0.08) 0%, transparent 60%), " +
+            "linear-gradient(135deg, hsl(var(--primary) / 0.04) 0%, hsl(var(--background)) 50%, hsl(var(--accent) / 0.06) 100%), " +
+            "hsl(var(--background))",
+        } as React.CSSProperties}
+      >
+        {/* Mouse-follow spotlight overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 transition-opacity duration-500 ease-out"
+          style={{
+            opacity: "var(--spotlight-opacity)",
+            background:
+              "radial-gradient(circle 300px at var(--mouse-x) var(--mouse-y), hsl(var(--primary) / 0.07) 0%, transparent 70%)",
+          } as React.CSSProperties}
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 w-full max-w-lg text-center space-y-8">
           {/* Icon + Title */}
           <div className="space-y-4">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
@@ -53,8 +112,8 @@ const Home = () => {
         </div>
       </main>
 
-      {/* Feature cards */}
-      <section className="border-t border-border bg-card/50 px-4 py-14">
+      {/* Feature cards — solid background, no gradient */}
+      <section className="border-t border-border bg-card/50 px-4 py-14" style={{ background: "hsl(var(--background))" }}>
         <div className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-3">
           <FeatureCard
             icon={<Brain className="h-6 w-6 text-primary" />}
