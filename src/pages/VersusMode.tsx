@@ -306,17 +306,12 @@ const VersusMode = () => {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
-      <header className="relative border-b border-border px-4 py-3">
-        {/* Mobile-only: absolute-positioned timer locked to Home button's vertical position */}
-        <div className="absolute top-3 left-12 flex items-center gap-1 sm:hidden">
-          <Timer className={`h-5 w-5 ${timerColor}`} />
-          <span className={`text-sm font-bold tabular-nums whitespace-nowrap leading-none ${timerColor}`}>{timeLeft}s</span>
-        </div>
+      <header className="border-b border-border px-4 py-3">
         <div className="mx-auto flex max-w-md items-center justify-between">
-          {/* Left: timer (desktop/tablet only) */}
-          <div className="hidden sm:flex items-center gap-1 w-16 flex-shrink-0">
-            <Timer className={`h-3.5 w-3.5 ${timerColor}`} />
-            <span className={`text-sm font-bold tabular-nums whitespace-nowrap ${timerColor}`}>{timeLeft}s</span>
+          {/* Left: timer — extra left padding on mobile to clear fixed Home button */}
+          <div className="flex items-center gap-1.5 w-16 flex-shrink-0 pl-8 sm:pl-0">
+            <Timer className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${timerColor}`} />
+            <span className={`text-sm font-bold tabular-nums whitespace-nowrap leading-none ${timerColor}`}>{timeLeft}s</span>
           </div>
           {/* Center: title */}
           <h1 className="text-sm font-bold text-foreground text-center">
