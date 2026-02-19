@@ -51,8 +51,9 @@ const Home = () => {
           "--mouse-y": "50%",
           "--spotlight-opacity": "0",
           background:
-            "radial-gradient(ellipse 80% 60% at 20% 30%, hsl(var(--primary) / 0.08) 0%, transparent 60%), " +
-            "linear-gradient(135deg, hsl(var(--primary) / 0.04) 0%, hsl(var(--background)) 50%, hsl(var(--accent) / 0.06) 100%), " +
+            "radial-gradient(ellipse 120% 90% at 15% 25%, hsl(var(--primary) / 0.14) 0%, transparent 65%), " +
+            "radial-gradient(ellipse 100% 80% at 85% 70%, hsl(var(--accent) / 0.10) 0%, transparent 60%), " +
+            "linear-gradient(135deg, hsl(var(--primary) / 0.07) 0%, hsl(var(--background)) 45%, hsl(var(--accent) / 0.09) 100%), " +
             "hsl(var(--background))",
         } as React.CSSProperties}
       >
@@ -62,7 +63,7 @@ const Home = () => {
           style={{
             opacity: "var(--spotlight-opacity)",
             background:
-              "radial-gradient(circle 300px at var(--mouse-x) var(--mouse-y), hsl(var(--primary) / 0.07) 0%, transparent 70%)",
+              "radial-gradient(circle 500px at var(--mouse-x) var(--mouse-y), hsl(var(--primary) / 0.05) 0%, transparent 80%)",
           } as React.CSSProperties}
           aria-hidden="true"
         />
