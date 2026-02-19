@@ -234,14 +234,14 @@ const VersusMode = () => {
             </div>
             <div className="space-y-3 py-2">
               <Swords className="h-6 w-6 text-primary mx-auto" />
-              <p className="text-lg font-bold text-foreground">Pass to {displayName(1)}</p>
+              <p className="text-lg font-bold text-foreground">{displayName(1)}'s turn</p>
               <p className="text-sm text-muted-foreground">{TURN_SECONDS} seconds</p>
             </div>
             <button
               onClick={handleStartPlayerB}
               className="w-full rounded-xl bg-primary py-4 font-bold text-primary-foreground shadow-md shadow-primary/20 transition hover:brightness-110 active:scale-[0.98] flex items-center justify-center gap-2"
             >
-              <ArrowRight className="h-5 w-5" /> {displayName(1)} — Go
+              <ArrowRight className="h-5 w-5" /> {displayName(1)} — Ready
             </button>
           </CardContent>
         </Card>
@@ -496,15 +496,6 @@ const VersusMode = () => {
             </Card>
           )}
 
-          {/* Next button — always visible, disabled until submission */}
-          {!revealed && (
-            <button
-              disabled
-              className="w-full rounded-xl bg-primary/30 py-3 font-bold text-primary-foreground/50 cursor-not-allowed"
-            >
-              Next <ArrowRight className="inline h-4 w-4 ml-1" />
-            </button>
-          )}
         </div>
       </main>
     </div>
