@@ -2,7 +2,8 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
 import { reasoningChecksByCase, ReasoningCheck } from "@/data/reasoningChecks";
-import { ChevronDown, CheckCircle2, XCircle, ArrowRight, RotateCcw, Lock, AlertTriangle, Sparkles, Coins, FileText } from "lucide-react";
+import { ChevronDown, CheckCircle2, XCircle, ArrowRight, RotateCcw, Lock, AlertTriangle, Sparkles, Coins, FileText, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +14,7 @@ const STORAGE_KEY = "study-mode-currency";
 
 const StudyMode = () => {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   // Restore persisted session or start fresh
   const initial = useRef(loadSession());
@@ -208,20 +210,29 @@ const StudyMode = () => {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="border-b border-border px-4 py-3">
-        <div className="relative flex items-center justify-center">
-          {/* Center: title aligned to content column */}
-          <div className="w-full max-w-md">
-            <h1 className="text-sm font-bold text-foreground tracking-wide text-center">Study Mode</h1>
-          </div>
-          {/* Right: currency — absolutely positioned to avoid pushing center */}
-          <div className="absolute right-0 pr-14 sm:pr-16 flex items-center gap-1.5">
-            <Coins className="h-3.5 w-3.5 text-primary/70" />
-            <span className="text-sm font-bold text-foreground">{currency}</span>
-            {deltaText && (
-              <span className={`text-[10px] font-semibold ml-1 ${deltaText.startsWith("+") ? "text-success" : deltaText.startsWith("-") ? "text-destructive" : "text-muted-foreground"}`}>
-                {deltaText}
-              </span>
-            )}
+        <div className="mx-auto flex max-w-md items-center justify-between">
+          {/* Spacer for balance (home button sits fixed outside) */}
+          <div className="w-16" />
+          {/* Center title */}
+          <h1 className="text-sm font-bold text-foreground tracking-wide">Study Mode</h1>
+          {/* Right: currency + theme */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <Coins className="h-3.5 w-3.5 text-primary/70" />
+              <span className="text-sm font-bold text-foreground">{currency}</span>
+              {deltaText && (
+                <span className={`text-[10px] font-semibold ml-1 ${deltaText.startsWith("+") ? "text-success" : deltaText.startsWith("-") ? "text-destructive" : "text-muted-foreground"}`}>
+                  {deltaText}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={toggleTheme}
+              className="flex items-center justify-center rounded-lg p-1.5 text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
+            </button>
           </div>
         </div>
       </header>
