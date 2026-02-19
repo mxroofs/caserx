@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy, ChevronDown, Sun, Moon } from "lucide-react";
-import { useTheme } from "@/hooks/useTheme";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy, ChevronDown } from "lucide-react";
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
@@ -44,7 +43,6 @@ const getStoredAutoAdvance = (): boolean => {
 
 const VersusMode = () => {
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
 
   const [phase, setPhase] = useState<Phase>("ready");
   const [activePlayer, setActivePlayer] = useState<0 | 1>(0);
@@ -317,18 +315,11 @@ const VersusMode = () => {
           <h1 className="text-sm font-bold text-foreground text-center">
             {displayName(activePlayer)}'s turn
           </h1>
-          {/* Right: points + theme */}
-          <div className="flex items-center gap-3 w-16 justify-end">
+          {/* Right: points */}
+          <div className="flex items-center w-16 justify-end">
             <span className="text-sm text-muted-foreground whitespace-nowrap">
               <span className="font-bold text-foreground">{currentPlayer.score}</span> pts
             </span>
-            <button
-              onClick={toggleTheme}
-              className="flex items-center justify-center rounded-lg p-1.5 text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
           </div>
         </div>
       </header>
@@ -366,45 +357,32 @@ const VersusMode = () => {
             </CardContent>
           </Card>
 
-          {/* Confidence + Auto toggle */}
-          <div className="space-y-2.5">
-            {/* Label + pills row */}
-            <div className="flex items-center justify-center gap-3">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Confidence</span>
-              <div className="flex items-center gap-2">
-                {(["low", "medium", "high"] as Confidence[]).map((level) => {
-                  const selected = confidence === level;
-                  const isLocked = selectedId !== null;
-                  return (
-                    <button
-                      key={level}
-                      onClick={() => !isLocked && setConfidence(level)}
-                      disabled={isLocked}
-                      className={`rounded-full border px-4 py-1.5 text-xs font-bold capitalize transition ${
-                        selected
-                          ? "border-primary bg-primary/15 text-primary"
-                          : isLocked
-                          ? "border-border text-muted-foreground/40 cursor-default"
-                          : "border-border text-muted-foreground hover:text-foreground cursor-pointer"
-                      }`}
-                    >
-                      {level}
-                    </button>
-                  );
-                })}
-              </div>
-              {/* Auto-advance toggle */}
-              <div className="flex items-center gap-1.5 pl-3 border-l border-border/50">
-                <label htmlFor="auto-adv" className="text-[10px] font-medium text-muted-foreground select-none">Auto</label>
-                <Switch
-                  id="auto-adv"
-                  checked={autoAdvance}
-                  onCheckedChange={setAutoAdvance}
-                  className="scale-75 origin-center"
-                />
-              </div>
+          {/* Confidence */}
+          <div className="space-y-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-center">Confidence</p>
+            <div className="flex items-center justify-center gap-2.5">
+              {(["low", "medium", "high"] as Confidence[]).map((level) => {
+                const selected = confidence === level;
+                const isLocked = selectedId !== null;
+                return (
+                  <button
+                    key={level}
+                    onClick={() => !isLocked && setConfidence(level)}
+                    disabled={isLocked}
+                    className={`rounded-full border px-5 py-1.5 text-xs font-bold capitalize transition ${
+                      selected
+                        ? "border-primary bg-primary/15 text-primary"
+                        : isLocked
+                        ? "border-border text-muted-foreground/40 cursor-default"
+                        : "border-border text-muted-foreground hover:text-foreground cursor-pointer"
+                    }`}
+                  >
+                    {level}
+                  </button>
+                );
+              })}
             </div>
-            {/* Scoring toggle — separate row */}
+            {/* Scoring toggle */}
             <div className="flex justify-center">
               <button
                 onClick={() => setShowScoring(!showScoring)}
@@ -506,6 +484,19 @@ const VersusMode = () => {
                 <p className={`text-center text-xs font-semibold ${roundResult.delta > 0 ? "text-success/80" : roundResult.delta < 0 ? "text-destructive/80" : "text-muted-foreground"}`}>
                   <span className="capitalize">{roundResult.confidence}</span> · {roundResult.delta > 0 ? "+" : ""}{roundResult.delta}
                 </p>
+
+                {/* Auto-advance toggle */}
+                <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                  <div>
+                    <label htmlFor="auto-adv" className="text-xs font-medium text-foreground select-none">Auto-advance next round</label>
+                    <p className="text-[10px] text-muted-foreground">Moves to the next round after feedback.</p>
+                  </div>
+                  <Switch
+                    id="auto-adv"
+                    checked={autoAdvance}
+                    onCheckedChange={setAutoAdvance}
+                  />
+                </div>
 
                 {!autoAdvance && (
                   <button

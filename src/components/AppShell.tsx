@@ -39,17 +39,14 @@ const AppShell = () => {
         </button>
       )}
 
-      {/* Theme toggle — only on Home; Study/Versus have their own */}
-      {isHome && (
-        <button
-          onClick={toggleTheme}
-          className="fixed top-3 right-3 z-50 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
-          aria-label="Toggle theme"
-        >
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          <span className="hidden sm:inline">{theme === "dark" ? "Light" : "Dark"}</span>
-        </button>
-      )}
+      {/* Theme toggle — global, all pages */}
+      <button
+        onClick={toggleTheme}
+        className="fixed top-3 right-3 z-50 flex items-center justify-center rounded-lg p-2 text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
+        aria-label="Toggle theme"
+      >
+        {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      </button>
 
       <Outlet />
 
