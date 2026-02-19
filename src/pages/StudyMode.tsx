@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
 import { reasoningChecksByCase, ReasoningCheck } from "@/data/reasoningChecks";
 import { getGuidelinesForCase } from "@/data/guidelineReferences";
-import { ChevronDown, CheckCircle2, XCircle, ArrowRight, RotateCcw, Lock, AlertTriangle, Sparkles, Coins, FileText } from "lucide-react";
+import { ChevronDown, CheckCircle2, XCircle, ArrowRight, RotateCcw, Lock, AlertTriangle, Sparkles, Coins, FileText, User } from "lucide-react";
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { setStudySnapshot, saveSession, loadSession, clearSession, type StudySessionState } from "@/stores/studySessionStore";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { PatientAvatar } from "@/components/PatientAvatar";
 
 const MIN_CHARS = 75;
 const STORAGE_KEY = "study-mode-currency";
@@ -252,11 +254,26 @@ const StudyMode = () => {
             <CardContent className="p-4 space-y-3">
               <div className="flex items-start justify-between">
                 <h2 className="text-lg font-bold text-foreground leading-snug tracking-tight">{currentCase.patient_stem_short}</h2>
-                {currentCase.backgroundFlag && (
-                  <span className="text-sm text-muted-foreground ml-3 shrink-0">
-                    {currentCase.backgroundFlag} {currentCase.backgroundCountry}
-                  </span>
-                )}
+                <div className="flex items-center gap-2 ml-3 shrink-0">
+                  {currentCase.backgroundFlag && (
+                    <span className="text-sm text-muted-foreground">
+                      {currentCase.backgroundFlag} {currentCase.backgroundCountry}
+                    </span>
+                  )}
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <button
+                        className="rounded-lg border border-border bg-muted/40 p-1.5 text-muted-foreground transition hover:bg-primary/10 hover:text-primary hover:border-primary/40"
+                        title="View patient body map"
+                      >
+                        <User className="h-4 w-4" />
+                      </button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-[300px] sm:w-[340px] p-4 pt-8 overflow-y-auto">
+                      <PatientAvatar caseData={currentCase} />
+                    </SheetContent>
+                  </Sheet>
+                </div>
               </div>
 
               {/* Labs — inline pills */}
