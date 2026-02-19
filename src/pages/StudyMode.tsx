@@ -8,7 +8,6 @@ import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { setStudySnapshot, saveSession, loadSession, clearSession, type StudySessionState } from "@/stores/studySessionStore";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { PatientAvatar } from "@/components/PatientAvatar";
 
 const MIN_CHARS = 75;
@@ -33,6 +32,7 @@ const StudyMode = () => {
   const [finished, setFinished] = useState(init?.finished ?? false);
   const [currency, setCurrency] = useState(init?.currency ?? 25);
   const [deltaText, setDeltaText] = useState<string | null>(init?.deltaText ?? null);
+  const [showBodyMap, setShowBodyMap] = useState(true);
 
   // Persist session on every state change
   useEffect(() => {
@@ -260,19 +260,17 @@ const StudyMode = () => {
                       {currentCase.backgroundFlag} {currentCase.backgroundCountry}
                     </span>
                   )}
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <button
-                        className="rounded-lg border border-border bg-muted/40 p-1.5 text-muted-foreground transition hover:bg-primary/10 hover:text-primary hover:border-primary/40"
-                        title="View patient body map"
-                      >
-                        <User className="h-4 w-4" />
-                      </button>
-                    </SheetTrigger>
-                    <SheetContent side="right" className="w-[300px] sm:w-[340px] p-4 pt-8 overflow-y-auto">
-                      <PatientAvatar caseData={currentCase} currency={currency} onSpendCurrency={(cost) => setCurrency(prev => Math.max(0, prev - cost))} />
-                    </SheetContent>
-                  </Sheet>
+                  <button
+                    onClick={() => setShowBodyMap(prev => !prev)}
+                    className={`rounded-lg border p-1.5 transition ${
+                      showBodyMap
+                        ? "border-primary bg-primary/15 text-primary ring-1 ring-primary/30"
+                        : "border-border bg-muted/40 text-muted-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/40"
+                    }`}
+                    title={showBodyMap ? "Hide patient body map" : "Show patient body map"}
+                  >
+                    <User className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
 
@@ -321,6 +319,15 @@ const StudyMode = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Inline Patient Body Map */}
+          {showBodyMap && (
+            <Card className="animate-in fade-in slide-in-from-top-2 duration-300">
+              <CardContent className="p-4">
+                <PatientAvatar caseData={currentCase} currency={currency} onSpendCurrency={(cost) => setCurrency(prev => Math.max(0, prev - cost))} />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Question */}
           <h3 className="text-center text-base font-bold text-foreground tracking-tight">

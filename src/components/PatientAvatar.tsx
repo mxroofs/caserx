@@ -404,8 +404,6 @@ export const PatientAvatar = ({ caseData, currency, onSpendCurrency }: PatientAv
   const handleSpotClick = useCallback((spot: BodyHotspot) => {
     setActiveSpot((prev) => (prev === spot.id ? null : spot.id));
     setSpeechBubble(spot.speech);
-    // Auto-clear speech bubble after a few seconds
-    setTimeout(() => setSpeechBubble(null), 5000);
   }, []);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
@@ -487,7 +485,6 @@ export const PatientAvatar = ({ caseData, currency, onSpendCurrency }: PatientAv
                   setActiveSpot(open ? spot.id : null);
                   if (open) {
                     setSpeechBubble(spot.speech);
-                    setTimeout(() => setSpeechBubble(null), 5000);
                   }
                 }}
               >
