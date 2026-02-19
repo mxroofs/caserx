@@ -2,7 +2,9 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
 import { reasoningChecksByCase, ReasoningCheck } from "@/data/reasoningChecks";
-import { ChevronDown, ChevronUp, CheckCircle2, XCircle, ArrowRight, RotateCcw, Activity, Lock, AlertTriangle, Sparkles, Coins } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, XCircle, ArrowRight, RotateCcw, Activity, Lock, AlertTriangle, Sparkles, Coins, Home } from "lucide-react";
+import { shuffleOptions } from "@/lib/shuffleOptions";
+import ExitConfirmDialog from "@/components/ExitConfirmDialog";
 
 const MIN_CHARS = 75;
 const STORAGE_KEY = "study-mode-currency";
@@ -26,6 +28,7 @@ const StudyMode = () => {
   const [finished, setFinished] = useState(false);
   const [currency, setCurrency] = useState(getStoredCurrency);
   const [deltaText, setDeltaText] = useState<string | null>(null);
+  const [showExitDialog, setShowExitDialog] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, String(currency));
@@ -37,6 +40,11 @@ const StudyMode = () => {
   const isAnswered = locked;
   const isCorrect = selectedId === currentCase.correctOptionId;
   const checks = reasoningChecksByCase[currentCase.id] ?? [];
+
+  const { options: shuffledOptions, correctDisplayLabel } = useMemo(
+    () => shuffleOptions(currentCase, "study"),
+    [currentCase]
+  );
 
   const reasoningResults = useMemo(() => {
     if (!locked) return null;
@@ -50,7 +58,6 @@ const StudyMode = () => {
     });
     const score = Math.min(hits.length, 4);
 
-    // Priority signal inference
     const hitLabels = hits.map((h) => h.label.toLowerCase()).join(" ");
     const missLabels = misses.map((m) => m.label.toLowerCase()).join(" ");
     const hitKws = hits.flatMap((h) => h.keywords).join(" ").toLowerCase();
@@ -104,21 +111,17 @@ const StudyMode = () => {
     const correct = selectedId === currentCase.correctOptionId;
     setResults((prev) => [...prev, correct]);
 
-    // Calculate currency delta after a tick so reasoningResults is available
     setTimeout(() => {
       const lower = explanation.toLowerCase();
       const caseChecks = reasoningChecksByCase[currentCase.id] ?? [];
       const hitCount = Math.min(caseChecks.filter(c => c.keywords.some(kw => lower.includes(kw.toLowerCase()))).length, 4);
       let delta = correct ? 2 : -4;
-      // Reasoning bonus: 0-1 hits → +0, 2 → +1, 3-4 → +2
       const reasoningBonus = hitCount <= 1 ? 0 : hitCount === 2 ? 1 : 2;
       delta += reasoningBonus;
-      // Shallow reasoning penalty
       if (hitCount === 0) delta -= 1;
       setCurrency(prev => Math.max(0, prev + delta));
       const sign = delta >= 0 ? "+" : "";
       setDeltaText(`${sign}${delta} this round`);
-      // Delta stays visible until next case
     }, 0);
   };
 
@@ -145,8 +148,18 @@ const StudyMode = () => {
     setFinished(false);
   };
 
+  const handleHomeClick = () => {
+    if (isSelected || isAnswered) {
+      setShowExitDialog(true);
+    } else {
+      navigate("/");
+    }
+  };
+
   const correctCount = results.filter(Boolean).length;
   const progress = ((currentIndex + (isAnswered ? 1 : 0)) / totalCases) * 100;
+
+  const correctOption = currentCase.options.find((o) => o.id === currentCase.correctOptionId);
 
   if (finished) {
     const pct = Math.round((correctCount / totalCases) * 100);
@@ -169,9 +182,9 @@ const StudyMode = () => {
             </button>
             <button
               onClick={() => navigate("/")}
-              className="w-full rounded-xl bg-secondary py-3 font-semibold text-secondary-foreground transition hover:brightness-110"
+              className="w-full rounded-xl bg-secondary py-3 font-semibold text-secondary-foreground transition hover:brightness-110 flex items-center justify-center gap-2"
             >
-              Home
+              <Home className="h-4 w-4" /> Home
             </button>
           </div>
         </div>
@@ -179,18 +192,23 @@ const StudyMode = () => {
     );
   }
 
-  const correctOption = currentCase.options.find((o) => o.id === currentCase.correctOptionId);
-
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="border-b border-border px-4 py-3">
         <div className="mx-auto flex max-w-md items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Activity className="h-5 w-5 text-primary" />
-            <span className="text-sm font-bold text-foreground">Diabetes Decision Trainer</span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleHomeClick}
+              className="flex items-center gap-1.5 rounded-lg bg-secondary px-2.5 py-1.5 text-xs font-semibold text-secondary-foreground transition hover:brightness-110 active:scale-[0.97]"
+            >
+              <Home className="h-3.5 w-3.5" /> Home
+            </button>
+            <div className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-primary" />
+              <span className="text-sm font-bold text-foreground hidden sm:inline">Diabetes Decision Trainer</span>
+            </div>
           </div>
-          <span className="text-xs text-muted-foreground hidden sm:inline">Right med · Right patient · Think it through</span>
           <div className="flex flex-col items-end relative">
             <div className="flex items-center gap-1.5">
               <Coins className="h-4 w-4 text-primary" />
@@ -271,34 +289,34 @@ const StudyMode = () => {
           {/* Question */}
           <p className="text-center text-sm font-semibold text-foreground">Select the best next medication.</p>
 
-          {/* Answer options */}
+          {/* Answer options — shuffled */}
           <div className="space-y-2">
-            {currentCase.options.map((opt) => {
+            {shuffledOptions.map((opt) => {
               let variant = "bg-secondary text-secondary-foreground border-border";
               if (isAnswered) {
-                if (opt.id === currentCase.correctOptionId) {
+                if (opt.originalId === currentCase.correctOptionId) {
                   variant = "bg-success/15 text-success border-success/40";
-                } else if (opt.id === selectedId) {
+                } else if (opt.originalId === selectedId) {
                   variant = "bg-destructive/15 text-destructive border-destructive/40";
                 } else {
                   variant = "bg-secondary/50 text-muted-foreground border-border opacity-60";
                 }
-              } else if (opt.id === selectedId) {
+              } else if (opt.originalId === selectedId) {
                 variant = "bg-primary/15 text-primary border-primary/50";
               }
               return (
                 <button
-                  key={opt.id}
-                  onClick={() => handleSelect(opt.id)}
+                  key={opt.originalId}
+                  onClick={() => handleSelect(opt.originalId)}
                   disabled={locked}
                   className={`w-full rounded-xl border py-3 px-4 text-left text-sm font-medium transition active:scale-[0.98] ${variant} ${!locked ? "hover:border-primary/50 hover:bg-primary/5 cursor-pointer" : "cursor-default"}`}
                 >
-                  <span className="font-bold mr-2">{opt.id}.</span>
+                  <span className="font-bold mr-2">{opt.displayLabel}.</span>
                   {opt.label}
-                  {isAnswered && opt.id === currentCase.correctOptionId && (
+                  {isAnswered && opt.originalId === currentCase.correctOptionId && (
                     <CheckCircle2 className="inline ml-2 h-4 w-4 text-success" />
                   )}
-                  {isAnswered && opt.id === selectedId && opt.id !== currentCase.correctOptionId && (
+                  {isAnswered && opt.originalId === selectedId && opt.originalId !== currentCase.correctOptionId && (
                     <XCircle className="inline ml-2 h-4 w-4 text-destructive" />
                   )}
                 </button>
@@ -342,9 +360,9 @@ const StudyMode = () => {
           {/* Answer reveal */}
           {isAnswered && (
             <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              {/* Best answer banner */}
+              {/* Best answer banner — uses shuffled label */}
               <div className={`rounded-xl p-3 text-center font-bold text-sm ${isCorrect ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
-              {isCorrect ? "✓ Correct!" : `✗ Best Answer: ${correctOption?.id}. ${correctOption?.label}`}
+              {isCorrect ? "✓ Correct!" : `✗ Best Answer: ${correctDisplayLabel}. ${correctOption?.label}`}
               </div>
 
               {/* Shallow reasoning warning */}
@@ -465,6 +483,12 @@ const StudyMode = () => {
           )}
         </div>
       </main>
+
+      <ExitConfirmDialog
+        open={showExitDialog}
+        onCancel={() => setShowExitDialog(false)}
+        onConfirm={() => navigate("/")}
+      />
     </div>
   );
 };

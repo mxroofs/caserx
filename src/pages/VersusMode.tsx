@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy, ChevronDown } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy, ChevronDown, Home } from "lucide-react";
+import { shuffleOptions } from "@/lib/shuffleOptions";
+import ExitConfirmDialog from "@/components/ExitConfirmDialog";
 
 const TURN_SECONDS = 60;
 
@@ -35,10 +37,16 @@ const VersusMode = () => {
   const [showScoring, setShowScoring] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [roundResult, setRoundResult] = useState<{ confidence: Confidence; correct: boolean; delta: number } | null>(null);
+  const [showExitDialog, setShowExitDialog] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const currentPlayer = players[activePlayer];
   const currentCase: CaseData = seedCases[currentPlayer.caseIndex % seedCases.length];
+
+  const { options: shuffledOptions, correctDisplayLabel } = useMemo(
+    () => shuffleOptions(currentCase, "versus"),
+    [currentCase]
+  );
 
   // Timer
   useEffect(() => {
@@ -72,7 +80,7 @@ const VersusMode = () => {
       if (revealed) return;
       setSelectedId(id);
     },
-    [revealed, confidence]
+    [revealed]
   );
 
   const handleConfirm = () => {
@@ -131,6 +139,14 @@ const VersusMode = () => {
     setTimeLeft(TURN_SECONDS);
   };
 
+  const handleHomeClick = () => {
+    if (phase === "playing") {
+      setShowExitDialog(true);
+    } else {
+      navigate("/");
+    }
+  };
+
   const timerPct = (timeLeft / TURN_SECONDS) * 100;
   const timerColor = timeLeft <= 10 ? "text-destructive" : timeLeft <= 20 ? "text-warning" : "text-foreground";
 
@@ -159,9 +175,9 @@ const VersusMode = () => {
             </button>
             <button
               onClick={() => navigate("/")}
-              className="w-full rounded-xl bg-secondary py-3 font-semibold text-secondary-foreground transition hover:brightness-110"
+              className="w-full rounded-xl bg-secondary py-3 font-semibold text-secondary-foreground transition hover:brightness-110 flex items-center justify-center gap-2"
             >
-              Back
+              <Home className="h-4 w-4" /> Home
             </button>
           </div>
         </div>
@@ -185,12 +201,20 @@ const VersusMode = () => {
             <h3 className="text-lg font-bold text-foreground">Pass the device to Player B</h3>
             <p className="text-sm text-muted-foreground">Player B gets {TURN_SECONDS} seconds.</p>
           </div>
-          <button
-            onClick={handleStartPlayerB}
-            className="w-full rounded-xl bg-primary py-4 font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.98] flex items-center justify-center gap-2"
-          >
-            <ArrowRight className="h-5 w-5" /> Player B — Go!
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={handleStartPlayerB}
+              className="w-full rounded-xl bg-primary py-4 font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <ArrowRight className="h-5 w-5" /> Player B — Go!
+            </button>
+            <button
+              onClick={() => navigate("/")}
+              className="w-full rounded-xl bg-secondary py-3 font-semibold text-secondary-foreground transition hover:brightness-110 flex items-center justify-center gap-2"
+            >
+              <Home className="h-4 w-4" /> Home
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -222,9 +246,9 @@ const VersusMode = () => {
             </button>
             <button
               onClick={() => navigate("/")}
-              className="w-full rounded-xl bg-secondary py-3 font-semibold text-secondary-foreground transition hover:brightness-110"
+              className="w-full rounded-xl bg-secondary py-3 font-semibold text-secondary-foreground transition hover:brightness-110 flex items-center justify-center gap-2"
             >
-              Home
+              <Home className="h-4 w-4" /> Home
             </button>
           </div>
         </div>
@@ -233,14 +257,18 @@ const VersusMode = () => {
   }
 
   // ── Playing phase ──
-  // playing phase
-
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="border-b border-border px-4 py-3">
         <div className="mx-auto flex max-w-md items-center justify-between">
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleHomeClick}
+              className="flex items-center gap-1.5 rounded-lg bg-secondary px-2.5 py-1.5 text-xs font-semibold text-secondary-foreground transition hover:brightness-110 active:scale-[0.97]"
+            >
+              <Home className="h-3.5 w-3.5" /> Home
+            </button>
             <Swords className="h-5 w-5 text-primary" />
             <span className="text-sm font-bold text-foreground">
               {activePlayer === 0 ? "Player A" : "Player B"}'s turn
@@ -332,35 +360,35 @@ const VersusMode = () => {
           {/* Question */}
           <p className="text-center text-sm font-semibold text-foreground">Best next medication?</p>
 
-          {/* Options */}
+          {/* Options — shuffled */}
           <div className="space-y-2">
-            {currentCase.options.map((opt) => {
+            {shuffledOptions.map((opt) => {
               const disabled = revealed;
               let variant = "bg-secondary text-secondary-foreground border-border";
               if (revealed) {
-                if (opt.id === currentCase.correctOptionId) {
+                if (opt.originalId === currentCase.correctOptionId) {
                   variant = "bg-success/15 text-success border-success/40";
-                } else if (opt.id === selectedId) {
+                } else if (opt.originalId === selectedId) {
                   variant = "bg-destructive/15 text-destructive border-destructive/40";
                 } else {
                   variant = "bg-secondary/50 text-muted-foreground border-border opacity-60";
                 }
-              } else if (opt.id === selectedId) {
+              } else if (opt.originalId === selectedId) {
                 variant = "bg-primary/15 text-primary border-primary/50";
               }
               return (
                 <button
-                  key={opt.id}
-                  onClick={() => handleSelect(opt.id)}
+                  key={opt.originalId}
+                  onClick={() => handleSelect(opt.originalId)}
                   disabled={disabled}
                   className={`w-full rounded-xl border py-2.5 px-4 text-left text-sm font-medium transition active:scale-[0.98] ${variant} ${!disabled ? "cursor-pointer" : "cursor-default"}`}
                 >
-                  <span className="font-bold mr-2">{opt.id}.</span>
+                  <span className="font-bold mr-2">{opt.displayLabel}.</span>
                   {opt.label}
-                  {revealed && opt.id === currentCase.correctOptionId && (
+                  {revealed && opt.originalId === currentCase.correctOptionId && (
                     <CheckCircle2 className="inline ml-2 h-4 w-4 text-success" />
                   )}
-                  {revealed && opt.id === selectedId && opt.id !== currentCase.correctOptionId && (
+                  {revealed && opt.originalId === selectedId && opt.originalId !== currentCase.correctOptionId && (
                     <XCircle className="inline ml-2 h-4 w-4 text-destructive" />
                   )}
                 </button>
@@ -380,7 +408,7 @@ const VersusMode = () => {
           {revealed && roundResult && (
             <div className="space-y-2 animate-in fade-in duration-200">
               <div className={`rounded-xl p-2.5 text-center font-bold text-sm ${roundResult.correct ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
-                {roundResult.correct ? "✓ Correct!" : `✗ Answer: ${currentCase.correctOptionId}`}
+                {roundResult.correct ? "✓ Correct!" : `✗ Answer: ${correctDisplayLabel}`}
               </div>
               <p className={`text-center text-xs font-semibold ${roundResult.delta > 0 ? "text-success" : roundResult.delta < 0 ? "text-destructive" : "text-muted-foreground"}`}>
                 {roundResult.correct ? "Correct" : "Incorrect"} + <span className="capitalize">{roundResult.confidence}</span> → {roundResult.delta > 0 ? "+" : ""}{roundResult.delta}
@@ -395,6 +423,12 @@ const VersusMode = () => {
           )}
         </div>
       </main>
+
+      <ExitConfirmDialog
+        open={showExitDialog}
+        onCancel={() => setShowExitDialog(false)}
+        onConfirm={() => navigate("/")}
+      />
     </div>
   );
 };
