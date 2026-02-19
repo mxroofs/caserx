@@ -6,11 +6,10 @@ import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy, Ch
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 
 const TURN_SECONDS = 60;
-const AUTO_ADVANCE_DELAY = 1800;
+
 
 type Phase = "ready" | "playing" | "handoff" | "results";
 type Confidence = "low" | "medium" | "high";
@@ -35,12 +34,6 @@ const getStoredNames = (): [string, string] => {
   } catch { return ["", ""]; }
 };
 
-const getStoredAutoAdvance = (): boolean => {
-  try {
-    const v = localStorage.getItem("versus_autoAdvance");
-    return v === null ? true : v === "true";
-  } catch { return true; }
-};
 
 const VersusMode = () => {
   const navigate = useNavigate();
@@ -53,7 +46,6 @@ const VersusMode = () => {
   ]);
   const [nameA, setNameA] = useState(() => getStoredNames()[0]);
   const [nameB, setNameB] = useState(() => getStoredNames()[1]);
-  const [autoAdvance, setAutoAdvance] = useState(getStoredAutoAdvance);
   const [timeLeft, setTimeLeft] = useState(TURN_SECONDS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [confidence, setConfidence] = useState<Confidence>("medium");
@@ -61,7 +53,6 @@ const VersusMode = () => {
   const [revealed, setRevealed] = useState(false);
   const [roundResult, setRoundResult] = useState<{ confidence: Confidence; correct: boolean; delta: number } | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const displayName = (idx: 0 | 1) => {
     const raw = idx === 0 ? nameA : nameB;
@@ -79,8 +70,6 @@ const VersusMode = () => {
   // Persist names
   useEffect(() => { try { localStorage.setItem("versus_nameA", nameA); } catch {} }, [nameA]);
   useEffect(() => { try { localStorage.setItem("versus_nameB", nameB); } catch {} }, [nameB]);
-  useEffect(() => { try { localStorage.setItem("versus_autoAdvance", String(autoAdvance)); } catch {} }, [autoAdvance]);
-
   // Signal round-active
   useEffect(() => {
     setRoundActive(phase === "playing");
@@ -94,7 +83,6 @@ const VersusMode = () => {
       setTimeLeft((t) => {
         if (t <= 1) {
           clearInterval(timerRef.current!);
-          if (autoAdvanceRef.current) { clearTimeout(autoAdvanceRef.current); autoAdvanceRef.current = null; }
           if (activePlayer === 0) {
             setPhase("handoff");
           } else {
@@ -110,9 +98,6 @@ const VersusMode = () => {
     };
   }, [phase, activePlayer]);
 
-  useEffect(() => {
-    return () => { if (autoAdvanceRef.current) clearTimeout(autoAdvanceRef.current); };
-  }, []);
 
   const handleStart = () => {
     setPhase("playing");
@@ -123,6 +108,7 @@ const VersusMode = () => {
     (id: string) => {
       if (revealed) return;
       setSelectedId(id);
+      // Do NOT reset confidence when selecting a medication
     },
     [revealed]
   );
@@ -157,40 +143,9 @@ const VersusMode = () => {
       };
       return next;
     });
-
-    if (autoAdvance) {
-      autoAdvanceRef.current = setTimeout(() => {
-        autoAdvanceRef.current = null;
-        advanceToNext();
-      }, AUTO_ADVANCE_DELAY);
-    }
   };
 
-  // Auto-advance countdown state
-  const [autoCountdown, setAutoCountdown] = useState<number | null>(null);
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    if (revealed && autoAdvance) {
-      setAutoCountdown(Math.ceil(AUTO_ADVANCE_DELAY / 1000));
-      countdownRef.current = setInterval(() => {
-        setAutoCountdown((prev) => {
-          if (prev !== null && prev <= 1) {
-            if (countdownRef.current) clearInterval(countdownRef.current);
-            return null;
-          }
-          return prev !== null ? prev - 1 : null;
-        });
-      }, 1000);
-    } else {
-      setAutoCountdown(null);
-      if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
-    }
-    return () => { if (countdownRef.current) clearInterval(countdownRef.current); };
-  }, [revealed, autoAdvance]);
-
   const handleNextCase = () => {
-    if (autoAdvanceRef.current) { clearTimeout(autoAdvanceRef.current); autoAdvanceRef.current = null; }
     advanceToNext();
   };
 
@@ -387,7 +342,7 @@ const VersusMode = () => {
             <div className="flex items-center justify-center gap-3">
               {(["low", "medium", "high"] as Confidence[]).map((level) => {
                 const selected = confidence === level;
-                const isLocked = selectedId !== null;
+                const isLocked = revealed;
                 return (
                   <button
                     key={level}
@@ -528,38 +483,14 @@ const VersusMode = () => {
                   ) : null;
                 })()}
 
-                {/* Auto-advance + Next */}
-                <div className="border-t border-border/50 pt-3 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <label htmlFor="auto-adv" className="text-xs font-medium text-foreground select-none">Auto-advance (2s)</label>
-                      <p className="text-[10px] text-muted-foreground">Automatically moves to the next round after feedback.</p>
-                    </div>
-                    <Switch
-                      id="auto-adv"
-                      checked={autoAdvance}
-                      onCheckedChange={setAutoAdvance}
-                    />
-                  </div>
-
-                  <div className="relative overflow-hidden rounded-xl">
-                    {autoAdvance && autoCountdown !== null && (
-                      <div
-                        className="absolute inset-0 bg-primary-foreground/10 transition-all duration-1000 ease-linear"
-                        style={{ width: `${((Math.ceil(AUTO_ADVANCE_DELAY / 1000) - (autoCountdown ?? 0)) / Math.ceil(AUTO_ADVANCE_DELAY / 1000)) * 100}%` }}
-                      />
-                    )}
-                    <button
-                      onClick={handleNextCase}
-                      className="relative w-full py-3 bg-primary font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
-                    >
-                      {autoAdvance && autoCountdown !== null ? (
-                        <>Next in {autoCountdown}s…</>
-                      ) : (
-                        <>Next <ArrowRight className="h-4 w-4" /></>
-                      )}
-                    </button>
-                  </div>
+                {/* Next */}
+                <div className="border-t border-border/50 pt-3">
+                  <button
+                    onClick={handleNextCase}
+                    className="w-full rounded-xl py-3 bg-primary font-bold text-primary-foreground flex items-center justify-center gap-2 transition hover:brightness-110 active:scale-[0.98]"
+                  >
+                    Next <ArrowRight className="h-4 w-4" />
+                  </button>
                 </div>
               </CardContent>
             </Card>
