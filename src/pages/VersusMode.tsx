@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy, ChevronDown } from "lucide-react";
 
 const TURN_SECONDS = 60;
 
@@ -31,7 +31,8 @@ const VersusMode = () => {
   ]);
   const [timeLeft, setTimeLeft] = useState(TURN_SECONDS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [confidence, setConfidence] = useState<Confidence | null>(null);
+  const [confidence, setConfidence] = useState<Confidence>("medium");
+  const [showScoring, setShowScoring] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [roundResult, setRoundResult] = useState<{ confidence: Confidence; correct: boolean; delta: number } | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -68,7 +69,7 @@ const VersusMode = () => {
 
   const handleSelect = useCallback(
     (id: string) => {
-      if (revealed || !confidence) return;
+      if (revealed) return;
       setSelectedId(id);
     },
     [revealed, confidence]
@@ -101,7 +102,7 @@ const VersusMode = () => {
       return next;
     });
     setSelectedId(null);
-    setConfidence(null);
+    setConfidence("medium");
     setRevealed(false);
     setRoundResult(null);
   };
@@ -109,7 +110,7 @@ const VersusMode = () => {
   const handleStartPlayerB = () => {
     setActivePlayer(1);
     setSelectedId(null);
-    setConfidence(null);
+    setConfidence("medium");
     setRevealed(false);
     setRoundResult(null);
     setTimeLeft(TURN_SECONDS);
@@ -124,7 +125,7 @@ const VersusMode = () => {
       { score: 0, answered: 0, caseIndex: 0 },
     ]);
     setSelectedId(null);
-    setConfidence(null);
+    setConfidence("medium");
     setRevealed(false);
     setRoundResult(null);
     setTimeLeft(TURN_SECONDS);
@@ -270,7 +271,15 @@ const VersusMode = () => {
         <div className="mx-auto max-w-md px-4 py-4 space-y-4">
           {/* Condensed patient card */}
           <div className="rounded-2xl bg-card border border-border px-4 py-4 space-y-3">
-            <h2 className="text-base font-semibold text-foreground">{currentCase.patient_stem_short}</h2>
+            <div className="flex items-start justify-between">
+              <h2 className="text-base font-semibold text-foreground">{currentCase.patient_stem_short}</h2>
+              {currentCase.backgroundFlag && (
+                <div className="flex flex-col items-center ml-2">
+                  <span className="text-lg leading-none">{currentCase.backgroundFlag}</span>
+                  <span className="text-[9px] text-muted-foreground">{currentCase.backgroundCountry}</span>
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-3 gap-2">
               <MiniChip label="A1C" value={currentCase.metrics.a1c} />
               <MiniChip label="eGFR" value={currentCase.metrics.egfr} />
@@ -283,20 +292,19 @@ const VersusMode = () => {
 
           {/* Confidence selector */}
           <div className="space-y-1">
-            <p className="text-center text-xs font-semibold text-muted-foreground">Your confidence?</p>
             <div className="flex justify-center gap-2">
               {(["low", "medium", "high"] as Confidence[]).map((level) => {
                 const selected = confidence === level;
-                const locked = selectedId !== null;
+                const isLocked = selectedId !== null;
                 return (
                   <button
                     key={level}
-                    onClick={() => !locked && setConfidence(level)}
-                    disabled={locked}
+                    onClick={() => !isLocked && setConfidence(level)}
+                    disabled={isLocked}
                     className={`rounded-full px-3 py-1 text-xs font-bold capitalize transition active:scale-[0.96] border ${
                       selected
                         ? "bg-primary/15 text-primary border-primary/50"
-                        : locked
+                        : isLocked
                         ? "bg-secondary/50 text-muted-foreground border-border opacity-50 cursor-default"
                         : "bg-secondary text-secondary-foreground border-border cursor-pointer hover:brightness-110"
                     }`}
@@ -306,6 +314,19 @@ const VersusMode = () => {
                 );
               })}
             </div>
+            <button
+              onClick={() => setShowScoring(!showScoring)}
+              className="mx-auto flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition"
+            >
+              {showScoring ? "Hide" : "How scoring works"}
+              <ChevronDown className={`h-3 w-3 transition-transform ${showScoring ? "rotate-180" : ""}`} />
+            </button>
+            {showScoring && (
+              <div className="text-[10px] text-muted-foreground text-center space-y-0.5 animate-in fade-in duration-150">
+                <p>Correct: High +2 · Med +1 · Low +0</p>
+                <p>Incorrect: High −2 · Med −1 · Low 0</p>
+              </div>
+            )}
           </div>
 
           {/* Question */}
@@ -314,10 +335,8 @@ const VersusMode = () => {
           {/* Options */}
           <div className="space-y-2">
             {currentCase.options.map((opt) => {
-              const disabled = revealed || !confidence;
-              let variant = disabled && !revealed
-                ? "bg-secondary/50 text-muted-foreground border-border opacity-60"
-                : "bg-secondary text-secondary-foreground border-border";
+              const disabled = revealed;
+              let variant = "bg-secondary text-secondary-foreground border-border";
               if (revealed) {
                 if (opt.id === currentCase.correctOptionId) {
                   variant = "bg-success/15 text-success border-success/40";
@@ -364,7 +383,7 @@ const VersusMode = () => {
                 {roundResult.correct ? "✓ Correct!" : `✗ Answer: ${currentCase.correctOptionId}`}
               </div>
               <p className={`text-center text-xs font-semibold ${roundResult.delta > 0 ? "text-success" : roundResult.delta < 0 ? "text-destructive" : "text-muted-foreground"}`}>
-                Confidence: <span className="capitalize">{roundResult.confidence}</span> | Result: {roundResult.correct ? "Correct" : "Incorrect"} → {roundResult.delta > 0 ? "+" : ""}{roundResult.delta}
+                {roundResult.correct ? "Correct" : "Incorrect"} + <span className="capitalize">{roundResult.confidence}</span> → {roundResult.delta > 0 ? "+" : ""}{roundResult.delta}
               </p>
               <button
                 onClick={handleNextCase}
