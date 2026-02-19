@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
 import { reasoningChecksByCase, ReasoningCheck } from "@/data/reasoningChecks";
+import { getGuidelinesForCase } from "@/data/guidelineReferences";
 import { ChevronDown, CheckCircle2, XCircle, ArrowRight, RotateCcw, Lock, AlertTriangle, Sparkles, Coins, FileText } from "lucide-react";
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
@@ -513,17 +514,23 @@ const StudyMode = () => {
                   </button>
                 </div>
 
-                {/* Guidelines Section */}
+                {/* Guideline References Section */}
                 <div className="border-t border-border/50 mt-4 pt-4">
                   <div className="rounded-lg bg-muted/20 p-4">
                     <CollapsibleSection
-                      title="Guidelines"
+                      title="Guideline References"
+                      icon={<FileText className="h-3.5 w-3.5 text-muted-foreground/60" />}
                       open={showGuidelines}
                       onToggle={() => setShowGuidelines(!showGuidelines)}
                     >
-                      <div className="space-y-1">
-                        {currentCase.guidelines.map((g, i) => (
-                          <p key={i} className="text-sm text-muted-foreground">– {g}</p>
+                      <div className="space-y-2">
+                        {getGuidelinesForCase(currentCase.id).map((g, i) => (
+                          <div key={i} className="text-sm text-foreground/80 pl-3 relative before:content-['–'] before:absolute before:left-0 before:text-muted-foreground">
+                            {g.text}
+                            <span className="block text-[10px] text-muted-foreground/70 mt-0.5">
+                              — {g.source} ({g.year})
+                            </span>
+                          </div>
                         ))}
                       </div>
                     </CollapsibleSection>
