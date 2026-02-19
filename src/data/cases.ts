@@ -11,6 +11,8 @@ export interface CaseData {
   whyCorrect: string[];
   avoidList: string[];
   guidelines: string[];
+  /** Per-distractor short explanation why that option is suboptimal */
+  incorrectRationale?: Record<string, string>;
 }
 
 export const seedCases: CaseData[] = [
@@ -42,6 +44,12 @@ export const seedCases: CaseData[] = [
       "ADA 2024 Standards of Care §9: SGLT2i preferred with HFrEF.",
       "ESC 2023 Heart Failure Guidelines: Dapagliflozin/empagliflozin class I recommendation.",
     ],
+    incorrectRationale: {
+      B: "Glipizide increases hypoglycemia risk without cardiovascular benefit in HFrEF.",
+      C: "Pioglitazone causes fluid retention and is contraindicated in heart failure.",
+      D: "Sitagliptin is weight-neutral but lacks proven CV or HF benefit.",
+      E: "Insulin glargine adds weight gain risk; not first-line add-on with HFrEF.",
+    },
   },
   {
     id: 2,
@@ -71,6 +79,12 @@ export const seedCases: CaseData[] = [
       "ADA 2024 §9: GLP-1 RA preferred with established ASCVD.",
       "ACC/AHA 2023: GLP-1 RA class I for T2DM + ASCVD.",
     ],
+    incorrectRationale: {
+      B: "Canagliflozin has CV benefit but GLP-1 RA is preferred for established ASCVD with high A1C.",
+      C: "Glimepiride lacks cardiovascular benefit and increases hypoglycemia risk.",
+      D: "Saxagliptin is associated with increased HF hospitalization (SAVOR-TIMI).",
+      E: "Acarbose has minimal A1C reduction and no proven CV benefit in ASCVD.",
+    },
   },
   {
     id: 3,
@@ -101,6 +115,12 @@ export const seedCases: CaseData[] = [
       "ADA 2024 §11: DPP-4i safe across CKD stages; linagliptin no adjustment.",
       "KDIGO 2022: Avoid metformin when eGFR < 30.",
     ],
+    incorrectRationale: {
+      A: "Metformin is contraindicated with eGFR < 30 due to lactic acidosis risk.",
+      C: "Canagliflozin has limited glycemic efficacy when eGFR < 30.",
+      D: "Exenatide requires renal dose adjustment and is not recommended in CKD Stage 4.",
+      E: "Glipizide is usable but carries higher hypoglycemia risk in CKD.",
+    },
   },
   {
     id: 4,
@@ -131,6 +151,12 @@ export const seedCases: CaseData[] = [
       "ADA 2024 §8: Prioritize agents with weight loss when obesity is present.",
       "Endocrine Society 2023: GLP-1 RA/dual agonists first-line for T2DM + obesity.",
     ],
+    incorrectRationale: {
+      B: "Glipizide causes weight gain and lacks weight-loss benefit needed at BMI 42.",
+      C: "Pioglitazone causes significant weight gain — counterproductive with severe obesity.",
+      D: "Insulin NPH promotes weight gain and hypoglycemia; not optimal as first add-on here.",
+      E: "Sitagliptin is weight-neutral but provides inferior A1C reduction and no weight loss.",
+    },
   },
   {
     id: 5,
@@ -158,6 +184,12 @@ export const seedCases: CaseData[] = [
       "ADA 2024 §11: SGLT2i recommended for DKD with albuminuria.",
       "KDIGO 2022: SGLT2i first-line for CKD with albuminuria in T2DM.",
     ],
+    incorrectRationale: {
+      B: "Glimepiride lacks renal protective effects and increases hypoglycemia risk.",
+      C: "Sitagliptin is safe but does not slow CKD progression or reduce albuminuria.",
+      D: "Pioglitazone causes fluid retention and lacks kidney-specific outcome data.",
+      E: "Insulin lispro addresses glycemia but provides no renal protection benefit.",
+    },
   },
   {
     id: 6,
@@ -185,6 +217,12 @@ export const seedCases: CaseData[] = [
       "ADA 2024 §9: Consider insulin if A1C ≥ 10% or symptomatic hyperglycemia.",
       "AACE 2023: Insulin recommended when A1C > 9% with symptoms.",
     ],
+    incorrectRationale: {
+      A: "Sitagliptin provides modest A1C reduction (~0.5–0.7%); insufficient at A1C 10.5%.",
+      C: "Pioglitazone is too slow-acting to address symptomatic hyperglycemia acutely.",
+      D: "Canagliflozin alone cannot achieve adequate control at this A1C level.",
+      E: "Glipizide has limited efficacy ceiling; inadequate for A1C ≥ 10% with symptoms.",
+    },
   },
   {
     id: 7,
@@ -214,6 +252,12 @@ export const seedCases: CaseData[] = [
       "ADA 2024 §13: Relaxed A1C targets in elderly/frail; avoid hypoglycemia.",
       "Beers Criteria: Avoid long-acting sulfonylureas in elderly.",
     ],
+    incorrectRationale: {
+      A: "Adding insulin glargine increases hypoglycemia risk in a frail elderly patient.",
+      C: "Empagliflozin is reasonable but doesn't address the root cause — the sulfonylurea.",
+      D: "Pioglitazone causes fluid retention and fracture risk in elderly patients.",
+      E: "Increasing glimepiride would directly worsen the recurrent hypoglycemia.",
+    },
   },
   {
     id: 8,
@@ -243,6 +287,12 @@ export const seedCases: CaseData[] = [
       "ADA 2024 §8: GLP-1 RA preferred when weight management is priority.",
       "AASLD 2023: Weight loss is primary intervention for NAFLD.",
     ],
+    incorrectRationale: {
+      B: "Glipizide causes weight gain — counterproductive for PCOS and NAFLD.",
+      C: "Insulin detemir promotes weight gain; not first-line add-on with BMI 38.",
+      D: "Acarbose has modest A1C effect and poor tolerability; doesn't address weight or NAFLD.",
+      E: "Rosiglitazone has limited use due to cardiovascular safety concerns.",
+    },
   },
   {
     id: 9,
@@ -273,6 +323,12 @@ export const seedCases: CaseData[] = [
       "ADA 2024 §9/11: SGLT2i for T2DM with HF and/or CKD.",
       "ESC 2023: SGLT2i class I for HFpEF regardless of diabetes status.",
     ],
+    incorrectRationale: {
+      B: "Pioglitazone is contraindicated in heart failure due to fluid retention.",
+      C: "Glimepiride lacks cardiorenal benefit and increases hypoglycemia risk.",
+      D: "Exenatide requires renal adjustment and lacks HFpEF outcome data.",
+      E: "Saxagliptin has a heart failure risk signal from SAVOR-TIMI 53.",
+    },
   },
   {
     id: 10,
@@ -303,5 +359,11 @@ export const seedCases: CaseData[] = [
       "ADA 2024 §9: Consider side-effect profile when choosing agent.",
       "FDA labeling: Canagliflozin carries bone fracture warning.",
     ],
+    incorrectRationale: {
+      A: "Dapagliflozin (SGLT2i) increases genital/urinary infection risk with recurrent UTIs.",
+      C: "Canagliflozin carries both UTI exacerbation risk and bone fracture warnings.",
+      D: "Pioglitazone increases fracture risk — problematic with existing osteoporosis.",
+      E: "Glipizide causes weight gain and hypoglycemia without addressing key comorbidities.",
+    },
   },
 ];

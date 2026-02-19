@@ -348,6 +348,23 @@ const StudyMode = () => {
               {isCorrect ? "✓ Correct!" : `✗ Best Answer: ${correctDisplayLabel}. ${correctOption?.label}`}
               </div>
 
+              {/* Clinical Rationale */}
+              <div className="rounded-xl bg-card border border-border p-4 space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-primary">Clinical Rationale</h3>
+                <ul className="space-y-1">
+                  {currentCase.whyCorrect.slice(0, 3).map((w, i) => (
+                    <li key={i} className="text-sm text-foreground">• {w}</li>
+                  ))}
+                </ul>
+                {!isCorrect && selectedId && (
+                  <div className="border-t border-border/60 pt-2 mt-2">
+                    <p className="text-sm text-destructive">
+                      ✗ {currentCase.incorrectRationale?.[selectedId] || "This option lacks the specific clinical benefit needed for this patient's profile."}
+                    </p>
+                  </div>
+                )}
+              </div>
+
               {isCorrect && reasoningResults && reasoningResults.score === 0 && (
                 <p className="text-xs text-center text-warning font-medium italic">Correct answer, but shallow reasoning.</p>
               )}

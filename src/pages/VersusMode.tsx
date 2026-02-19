@@ -463,6 +463,16 @@ const VersusMode = () => {
               <div className={`rounded-xl p-2.5 text-center font-bold text-sm ${roundResult.correct ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
                 {roundResult.correct ? "✓ Correct!" : `✗ Answer: ${correctDisplayLabel}`}
               </div>
+              {/* Compact clinical rationale */}
+              <div className="rounded-xl bg-card border border-border px-3 py-2 space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Why {currentCase.options.find(o => o.id === currentCase.correctOptionId)?.label}?</p>
+                <p className="text-xs text-foreground leading-relaxed">{currentCase.whyCorrect[0]}</p>
+                {!roundResult.correct && selectedId && (
+                  <p className="text-xs text-destructive border-t border-border/60 pt-1 mt-1">
+                    {currentCase.incorrectRationale?.[selectedId] || "This option lacks the specific benefit needed here."}
+                  </p>
+                )}
+              </div>
               <p className={`text-center text-xs font-semibold ${roundResult.delta > 0 ? "text-success" : roundResult.delta < 0 ? "text-destructive" : "text-muted-foreground"}`}>
                 {roundResult.correct ? "Correct" : "Incorrect"} + <span className="capitalize">{roundResult.confidence}</span> → {roundResult.delta > 0 ? "+" : ""}{roundResult.delta}
               </p>
