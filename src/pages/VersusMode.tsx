@@ -56,28 +56,22 @@ const VersusMode = () => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const confettiFiredRef = useRef(false);
 
-  // Fire confetti on results screen
+  // Fire confetti on results screen — single short burst
   useEffect(() => {
     if (phase === "results" && !confettiFiredRef.current) {
       confettiFiredRef.current = true;
-      const duration = 1800;
-      const end = Date.now() + duration;
-      const burst = () => {
-        confetti({
-          particleCount: 60,
-          spread: 70,
-          origin: { x: 0.5, y: 0.45 },
-          zIndex: 40,
-          disableForReducedMotion: true,
-          ticks: 120,
-          gravity: 1.2,
-          scalar: 0.9,
-        });
-        if (Date.now() < end) {
-          requestAnimationFrame(burst);
-        }
-      };
-      burst();
+      confetti({
+        particleCount: 80,
+        spread: 360,
+        startVelocity: 30,
+        origin: { x: 0.5, y: 0.45 },
+        zIndex: 40,
+        disableForReducedMotion: true,
+        ticks: 60,
+        gravity: 1.4,
+        scalar: 0.7,
+        decay: 0.92,
+      });
     }
     if (phase === "ready") {
       confettiFiredRef.current = false;
