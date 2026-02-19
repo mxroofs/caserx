@@ -32,7 +32,7 @@ const AppShell = () => {
       {!isHome && !isBreakdown && (
         <button
           onClick={handleHomeClick}
-          className="fixed top-3 left-3 z-50 flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] max-sm:px-1.5 max-sm:py-1.5 border border-white/10 dark:border-white/15 bg-white/5 dark:bg-white/5 shadow-sm shadow-black/15 backdrop-blur-sm"
+          className="fixed top-2 left-3 z-50 flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] max-sm:px-1.5 max-sm:py-1.5 border border-white/10 dark:border-white/15 bg-white/5 dark:bg-white/5 shadow-sm shadow-black/15 backdrop-blur-sm"
           aria-label="Home"
         >
           <Home className="h-4 w-4" />
