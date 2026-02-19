@@ -21,7 +21,7 @@ const ExitConfirmDialog = ({ open, onCancel, onConfirm }: ExitConfirmDialogProps
         <DialogTitle>Exit to Home?</DialogTitle>
         <DialogDescription>Your current round will end.</DialogDescription>
       </DialogHeader>
-      <DialogFooter className="flex flex-row items-center justify-center gap-3 sm:justify-end">
+      <DialogFooter className="flex flex-row items-center justify-center gap-3">
         <Button variant="secondary" onClick={onCancel} className="min-h-[40px] px-5">
           Cancel
         </Button>
