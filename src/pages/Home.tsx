@@ -110,10 +110,6 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Insuwin attribution */}
-        <span className="absolute bottom-4 right-4 rounded-full border border-border/40 bg-muted/50 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground/70 select-none backdrop-blur-sm">
-          An Insuwin platform
-        </span>
       </main>
 
       {/* Feature cards — solid background, no gradient */}

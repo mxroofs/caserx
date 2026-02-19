@@ -42,13 +42,18 @@ const AppShell = () => {
       {/* Theme toggle — global, all pages */}
       <button
         onClick={toggleTheme}
-        className="fixed top-3 right-3 z-50 flex items-center justify-center rounded-lg p-2 text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
+        className="fixed top-2 right-3 z-50 flex items-center justify-center rounded-xl p-2.5 text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
         aria-label="Toggle theme"
       >
-        {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        {theme === "dark" ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
       </button>
 
       <Outlet />
+
+      {/* Global Insuwin attribution */}
+      <span className="fixed bottom-3 right-3 z-40 rounded-full border border-border/40 bg-muted/50 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground/70 select-none backdrop-blur-sm pointer-events-none">
+        An Insuwin platform
+      </span>
 
       <ExitConfirmDialog
         open={showExitDialog}
