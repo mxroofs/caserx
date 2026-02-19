@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
 import { getGuidelinesForCase } from "@/data/guidelineReferences";
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Swords, Timer, Trophy, ChevronDown, FileText } from "lucide-react";
+import confetti from "canvas-confetti";
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
@@ -53,7 +54,35 @@ const VersusMode = () => {
   const [revealed, setRevealed] = useState(false);
   const [roundResult, setRoundResult] = useState<{ confidence: Confidence; correct: boolean; delta: number } | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const confettiFiredRef = useRef(false);
 
+  // Fire confetti on results screen
+  useEffect(() => {
+    if (phase === "results" && !confettiFiredRef.current) {
+      confettiFiredRef.current = true;
+      const duration = 1800;
+      const end = Date.now() + duration;
+      const burst = () => {
+        confetti({
+          particleCount: 60,
+          spread: 70,
+          origin: { x: 0.5, y: 0.45 },
+          zIndex: 40,
+          disableForReducedMotion: true,
+          ticks: 120,
+          gravity: 1.2,
+          scalar: 0.9,
+        });
+        if (Date.now() < end) {
+          requestAnimationFrame(burst);
+        }
+      };
+      burst();
+    }
+    if (phase === "ready") {
+      confettiFiredRef.current = false;
+    }
+  }, [phase]);
   const displayName = (idx: 0 | 1) => {
     const raw = idx === 0 ? nameA : nameB;
     return raw.trim() || (idx === 0 ? "Player A" : "Player B");
@@ -255,7 +284,7 @@ const VersusMode = () => {
     const winner = a.score > b.score ? displayName(0) : b.score > a.score ? displayName(1) : null;
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-sm">
+        <Card className="relative z-50 w-full max-w-sm">
           <CardContent className="p-6 space-y-6 text-center">
             <div className="space-y-2">
               <Trophy className="h-8 w-8 text-primary mx-auto" />
