@@ -24,7 +24,7 @@ const StudyMode = () => {
   const [locked, setLocked] = useState(init?.locked ?? false);
   const [showGuidelines, setShowGuidelines] = useState(init?.showGuidelines ?? false);
   const [showReasoning, setShowReasoning] = useState(init?.showReasoning ?? false);
-  const [showAnalysis, setShowAnalysis] = useState(init?.showAnalysis ?? false);
+  const [showAnalysis, setShowAnalysis] = useState(init?.showAnalysis ?? true);
   const [results, setResults] = useState<boolean[]>(init?.results ?? []);
   const [finished, setFinished] = useState(init?.finished ?? false);
   const [currency, setCurrency] = useState(init?.currency ?? 50);
@@ -372,9 +372,12 @@ const StudyMode = () => {
                   <p className="text-xs text-center text-warning italic">Correct, but reasoning lacked depth.</p>
                 )}
 
-                {/* Clinical Rationale */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-primary/80">Clinical Rationale</h4>
+                {/* Clinical Rationale Section */}
+                <div className="rounded-lg bg-muted/20 p-4 space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary/60" />
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-primary/80">Clinical Rationale</h4>
+                  </div>
                   <ul className="space-y-1.5">
                     {currentCase.whyCorrect.slice(0, 3).map((w, i) => (
                       <li key={i} className="text-sm text-foreground/90 leading-relaxed pl-3 relative before:content-['–'] before:absolute before:left-0 before:text-muted-foreground">{w}</li>
@@ -387,75 +390,86 @@ const StudyMode = () => {
                   )}
                 </div>
 
-                {/* Reasoning quality */}
-                {reasoningResults && (
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground">Reasoning</span>
-                    <span className={`text-xs font-bold ${
-                      reasoningResults.score <= 1 ? "text-destructive/80" :
-                      reasoningResults.score === 2 ? "text-warning/80" :
-                      "text-success/80"
-                    }`}>
-                      {reasoningResults.score}/4
-                    </span>
-                    {reasoningResults.prioritySignal && (
-                      <span className="text-xs text-muted-foreground italic">— {reasoningResults.prioritySignal}</span>
+                {/* Reasoning Analysis Section */}
+                <div className="border-t border-border/50 mt-4 pt-4">
+                  <div className="rounded-lg bg-muted/20 p-4 space-y-2">
+                    {reasoningResults && (
+                      <>
+                        <CollapsibleSection
+                          title="Reasoning Analysis"
+                          icon={<Sparkles className="h-3.5 w-3.5 text-primary/60" />}
+                          open={showAnalysis}
+                          onToggle={() => setShowAnalysis(!showAnalysis)}
+                        >
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs text-muted-foreground">Score</span>
+                              <span className={`text-xs font-bold ${
+                                reasoningResults.score <= 1 ? "text-destructive/80" :
+                                reasoningResults.score === 2 ? "text-warning/80" :
+                                "text-success/80"
+                              }`}>
+                                {reasoningResults.score}/4
+                              </span>
+                              {reasoningResults.prioritySignal && (
+                                <span className="text-xs text-muted-foreground italic">— {reasoningResults.prioritySignal}</span>
+                              )}
+                            </div>
+                            {reasoningResults.lowQuality && (
+                              <div className="flex items-start gap-2 text-xs text-warning/80">
+                                <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                                <span>Low-quality explanation — reference specific mechanisms, risks, and patient factors.</span>
+                              </div>
+                            )}
+                            {reasoningResults.hits.length > 0 && (
+                              <div className="space-y-1">
+                                <p className="text-xs font-semibold text-success/80">Considered</p>
+                                {reasoningResults.hits.map((h, i) => (
+                                  <p key={i} className="text-sm text-foreground/80 pl-3">– {h.label}: {h.hitFeedback}</p>
+                                ))}
+                              </div>
+                            )}
+                            {reasoningResults.misses.length > 0 && (
+                              <div className="space-y-1">
+                                <p className="text-xs font-semibold text-destructive/80">Overlooked</p>
+                                {reasoningResults.misses.map((m, i) => (
+                                  <p key={i} className="text-sm text-muted-foreground pl-3">– {m.label}: {m.missFeedback}</p>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </CollapsibleSection>
+                      </>
                     )}
                   </div>
-                )}
+                </div>
 
-                <div className="h-px bg-border" />
-
-                {/* Collapsible: Your Reasoning */}
-                <CollapsibleSection
-                  title="Your Reasoning"
-                  open={showReasoning}
-                  onToggle={() => setShowReasoning(!showReasoning)}
-                >
-                  <p className="text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed">{explanation}</p>
-                </CollapsibleSection>
-
-                {/* Collapsible: Reasoning Analysis */}
-                {reasoningResults && (
-                  <CollapsibleSection
-                    title="Reasoning Analysis"
-                    open={showAnalysis}
-                    onToggle={() => setShowAnalysis(!showAnalysis)}
-                  >
-                    <div className="space-y-3">
-                      {reasoningResults.lowQuality && (
-                        <div className="flex items-start gap-2 text-xs text-warning/80">
-                          <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                          <span>Low-quality explanation — reference specific mechanisms, risks, and patient factors.</span>
-                        </div>
-                      )}
-                      {reasoningResults.hits.length > 0 && (
-                        <div className="space-y-1">
-                          <p className="text-xs font-semibold text-success/80">Considered</p>
-                          {reasoningResults.hits.map((h, i) => (
-                            <p key={i} className="text-sm text-foreground/80 pl-3">– {h.label}: {h.hitFeedback}</p>
-                          ))}
-                        </div>
-                      )}
-                      {reasoningResults.misses.length > 0 && (
-                        <div className="space-y-1">
-                          <p className="text-xs font-semibold text-destructive/80">Overlooked</p>
-                          {reasoningResults.misses.map((m, i) => (
-                            <p key={i} className="text-sm text-muted-foreground pl-3">– {m.label}: {m.missFeedback}</p>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </CollapsibleSection>
-                )}
+                {/* Your Reasoning Section */}
+                <div className="border-t border-border/50 mt-4 pt-4">
+                  <div className="rounded-lg bg-muted/20 p-4">
+                    <CollapsibleSection
+                      title="Your Reasoning"
+                      icon={<FileText className="h-3.5 w-3.5 text-muted-foreground/60" />}
+                      open={showReasoning}
+                      onToggle={() => setShowReasoning(!showReasoning)}
+                    >
+                      <p className="text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed">{explanation}</p>
+                    </CollapsibleSection>
+                  </div>
+                </div>
 
                 {/* Avoid list */}
                 {currentCase.avoidList.length > 0 && (
-                  <div className="space-y-1.5">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-destructive/70">Avoid</h4>
-                    {currentCase.avoidList.map((a, i) => (
-                      <p key={i} className="text-sm text-muted-foreground pl-3">– {a}</p>
-                    ))}
+                  <div className="border-t border-border/50 mt-4 pt-4">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <AlertTriangle className="h-3.5 w-3.5 text-destructive/60" />
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-destructive/70">Avoid</h4>
+                      </div>
+                      {currentCase.avoidList.map((a, i) => (
+                        <p key={i} className="text-sm text-muted-foreground pl-3">– {a}</p>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -496,18 +510,22 @@ const StudyMode = () => {
                   </button>
                 </div>
 
-                {/* Guidelines toggle */}
-                <CollapsibleSection
-                  title="Guidelines"
-                  open={showGuidelines}
-                  onToggle={() => setShowGuidelines(!showGuidelines)}
-                >
-                  <div className="space-y-1">
-                    {currentCase.guidelines.map((g, i) => (
-                      <p key={i} className="text-sm text-muted-foreground">– {g}</p>
-                    ))}
+                {/* Guidelines Section */}
+                <div className="border-t border-border/50 mt-4 pt-4">
+                  <div className="rounded-lg bg-muted/20 p-4">
+                    <CollapsibleSection
+                      title="Guidelines"
+                      open={showGuidelines}
+                      onToggle={() => setShowGuidelines(!showGuidelines)}
+                    >
+                      <div className="space-y-1">
+                        {currentCase.guidelines.map((g, i) => (
+                          <p key={i} className="text-sm text-muted-foreground">– {g}</p>
+                        ))}
+                      </div>
+                    </CollapsibleSection>
                   </div>
-                </CollapsibleSection>
+                </div>
               </CardContent>
             </Card>
           )}
@@ -529,8 +547,9 @@ const LabPill = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
-const CollapsibleSection = ({ title, open, onToggle, children }: {
+const CollapsibleSection = ({ title, icon, open, onToggle, children }: {
   title: string;
+  icon?: React.ReactNode;
   open: boolean;
   onToggle: () => void;
   children: React.ReactNode;
@@ -541,6 +560,7 @@ const CollapsibleSection = ({ title, open, onToggle, children }: {
       className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
     >
       <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      {icon}
       {title}
     </button>
     {open && (
