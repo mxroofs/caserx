@@ -85,15 +85,15 @@ const StudyBreakdown = () => {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="border-b border-border px-4 py-3">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
+        <div className="mx-auto flex max-w-2xl items-center justify-between relative">
           <button
             onClick={() => navigate("/study")}
-            className="inline-flex w-fit items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
+            className="inline-flex w-fit items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96] max-sm:ml-1"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Case
           </button>
-          <h1 className="text-sm font-bold text-foreground tracking-wide">
+          <h1 className="text-sm font-bold text-foreground tracking-wide max-sm:absolute max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:text-center max-sm:pointer-events-none">
             Case {caseIndex + 1} of {totalCases} — Detailed Breakdown
           </h1>
           <button
