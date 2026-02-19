@@ -2,8 +2,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { seedCases, CaseData } from "@/data/cases";
 import { reasoningChecksByCase, ReasoningCheck } from "@/data/reasoningChecks";
-import { ChevronDown, CheckCircle2, XCircle, ArrowRight, RotateCcw, Lock, AlertTriangle, Sparkles, Coins, FileText, Sun, Moon } from "lucide-react";
-import { useTheme } from "@/hooks/useTheme";
+import { ChevronDown, CheckCircle2, XCircle, ArrowRight, RotateCcw, Lock, AlertTriangle, Sparkles, Coins, FileText } from "lucide-react";
 import { shuffleOptions } from "@/lib/shuffleOptions";
 import { setRoundActive } from "@/components/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,7 +13,7 @@ const STORAGE_KEY = "study-mode-currency";
 
 const StudyMode = () => {
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
+  
 
   // Restore persisted session or start fresh
   const initial = useRef(loadSession());
@@ -226,13 +225,6 @@ const StudyMode = () => {
                 </span>
               )}
             </div>
-            <button
-              onClick={toggleTheme}
-              className="flex items-center justify-center rounded-lg p-1.5 text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
-            </button>
           </div>
         </div>
       </header>
