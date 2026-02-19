@@ -211,8 +211,8 @@ const StudyMode = () => {
       {/* Header */}
       <header className="border-b border-border px-4 py-3">
         <div className="mx-auto flex max-w-md items-center justify-between">
-          {/* Spacer for balance (home button sits fixed outside) */}
-          <div className="w-16" />
+          {/* Spacer matching right side width for true centering */}
+          <div className="min-w-[4.5rem]" />
           {/* Center title */}
           <h1 className="text-sm font-bold text-foreground tracking-wide">Study Mode</h1>
           {/* Right: currency + theme */}
