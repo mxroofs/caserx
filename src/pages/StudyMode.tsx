@@ -224,7 +224,15 @@ const StudyMode = () => {
 
           {/* Patient card */}
           <div className="rounded-2xl bg-card border border-border px-5 py-5 space-y-0">
-            <h2 className="text-lg font-semibold text-foreground leading-snug">{currentCase.patient_stem_short}</h2>
+            <div className="flex items-start justify-between">
+              <h2 className="text-lg font-semibold text-foreground leading-snug">{currentCase.patient_stem_short}</h2>
+              {currentCase.backgroundFlag && (
+                <div className="flex flex-col items-center ml-2">
+                  <span className="text-xl leading-none">{currentCase.backgroundFlag}</span>
+                  <span className="text-[9px] text-muted-foreground">{currentCase.backgroundCountry}</span>
+                </div>
+              )}
+            </div>
 
             {/* Metric chips */}
             <div className="grid grid-cols-3 gap-2 pt-4">

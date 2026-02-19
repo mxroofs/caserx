@@ -1,6 +1,8 @@
 export interface CaseData {
   id: number;
   patient_stem_short: string;
+  backgroundCountry?: string;
+  backgroundFlag?: string;
   metrics: { a1c: string; egfr: string; bmi: string };
   comorbidities: string[];
   current_meds: string[];
@@ -15,6 +17,8 @@ export const seedCases: CaseData[] = [
   {
     id: 1,
     patient_stem_short: "62 y/o male",
+    backgroundCountry: "United States",
+    backgroundFlag: "🇺🇸",
     metrics: { a1c: "8.2%", egfr: "75 mL/min", bmi: "34 kg/m²" },
     comorbidities: ["Heart failure (HFrEF)", "Hypertension"],
     current_meds: ["Metformin 1000 mg BID"],
@@ -42,6 +46,8 @@ export const seedCases: CaseData[] = [
   {
     id: 2,
     patient_stem_short: "55 y/o female",
+    backgroundCountry: "Mexico",
+    backgroundFlag: "🇲🇽",
     metrics: { a1c: "9.1%", egfr: "90 mL/min", bmi: "31 kg/m²" },
     comorbidities: ["ASCVD (prior MI)", "Dyslipidemia"],
     current_meds: ["Metformin 1000 mg BID", "Atorvastatin 40 mg"],
@@ -69,6 +75,8 @@ export const seedCases: CaseData[] = [
   {
     id: 3,
     patient_stem_short: "70 y/o male",
+    backgroundCountry: "India",
+    backgroundFlag: "🇮🇳",
     metrics: { a1c: "7.8%", egfr: "28 mL/min", bmi: "27 kg/m²" },
     comorbidities: ["CKD Stage 4", "Hypertension"],
     current_meds: ["Insulin glargine 20 units", "Lisinopril 20 mg"],
@@ -97,6 +105,8 @@ export const seedCases: CaseData[] = [
   {
     id: 4,
     patient_stem_short: "48 y/o female",
+    backgroundCountry: "United Kingdom",
+    backgroundFlag: "🇬🇧",
     metrics: { a1c: "7.5%", egfr: "95 mL/min", bmi: "42 kg/m²" },
     comorbidities: ["Obesity", "Obstructive sleep apnea"],
     current_meds: ["Metformin 1000 mg BID"],
@@ -125,6 +135,8 @@ export const seedCases: CaseData[] = [
   {
     id: 5,
     patient_stem_short: "65 y/o male",
+    backgroundCountry: "Nigeria",
+    backgroundFlag: "🇳🇬",
     metrics: { a1c: "8.8%", egfr: "60 mL/min", bmi: "29 kg/m²" },
     comorbidities: ["Diabetic kidney disease (albuminuria)", "Hypertension"],
     current_meds: ["Metformin 500 mg BID", "Losartan 100 mg"],
@@ -150,6 +162,8 @@ export const seedCases: CaseData[] = [
   {
     id: 6,
     patient_stem_short: "58 y/o female",
+    backgroundCountry: "Philippines",
+    backgroundFlag: "🇵🇭",
     metrics: { a1c: "10.5%", egfr: "85 mL/min", bmi: "26 kg/m²" },
     comorbidities: ["Symptomatic hyperglycemia (polyuria, weight loss)"],
     current_meds: ["Metformin 1000 mg BID"],
@@ -175,6 +189,8 @@ export const seedCases: CaseData[] = [
   {
     id: 7,
     patient_stem_short: "72 y/o male",
+    backgroundCountry: "Japan",
+    backgroundFlag: "🇯🇵",
     metrics: { a1c: "7.2%", egfr: "55 mL/min", bmi: "24 kg/m²" },
     comorbidities: ["Recurrent hypoglycemia", "Frailty"],
     current_meds: ["Glimepiride 4 mg", "Metformin 500 mg BID"],
@@ -202,6 +218,8 @@ export const seedCases: CaseData[] = [
   {
     id: 8,
     patient_stem_short: "45 y/o female",
+    backgroundCountry: "Brazil",
+    backgroundFlag: "🇧🇷",
     metrics: { a1c: "7.9%", egfr: "110 mL/min", bmi: "38 kg/m²" },
     comorbidities: ["PCOS", "NAFLD"],
     current_meds: ["Metformin 1000 mg BID"],
@@ -229,6 +247,8 @@ export const seedCases: CaseData[] = [
   {
     id: 9,
     patient_stem_short: "60 y/o male",
+    backgroundCountry: "Germany",
+    backgroundFlag: "🇩🇪",
     metrics: { a1c: "8.5%", egfr: "45 mL/min", bmi: "30 kg/m²" },
     comorbidities: ["CKD Stage 3b", "Heart failure (HFpEF)"],
     current_meds: ["Metformin 500 mg BID", "Lisinopril 10 mg"],
@@ -257,6 +277,8 @@ export const seedCases: CaseData[] = [
   {
     id: 10,
     patient_stem_short: "52 y/o female",
+    backgroundCountry: "South Korea",
+    backgroundFlag: "🇰🇷",
     metrics: { a1c: "8.0%", egfr: "100 mL/min", bmi: "33 kg/m²" },
     comorbidities: ["Recurrent UTIs", "Osteoporosis"],
     current_meds: ["Metformin 1000 mg BID"],
