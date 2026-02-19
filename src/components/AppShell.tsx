@@ -42,10 +42,10 @@ const AppShell = () => {
       {/* Theme toggle — top-right on all pages */}
       <button
         onClick={toggleTheme}
-        className="fixed top-3 right-3 z-50 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
+        className="fixed top-2 right-2 z-50 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:bg-secondary/80 active:scale-[0.96]"
         aria-label="Toggle theme"
       >
-        {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         <span className="hidden sm:inline">{theme === "dark" ? "Light" : "Dark"}</span>
       </button>
 

@@ -305,22 +305,15 @@ const VersusMode = () => {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="border-b border-border px-4 py-3">
-        <div className="mx-auto flex max-w-md items-center justify-between">
-          <div className="flex items-center gap-2 pl-16 sm:pl-20">
-            <h1 className="text-sm font-bold text-foreground">
+        <div className="relative flex items-center justify-center">
+          {/* Center: title aligned to content column */}
+          <div className="w-full max-w-md">
+            <h1 className="text-sm font-bold text-foreground text-center">
               {displayName(activePlayer)}'s turn
             </h1>
           </div>
-          <div className="flex items-center gap-3 pr-16 sm:pr-20">
-            <div className="flex items-center gap-1.5">
-              <label htmlFor="auto-adv" className="text-[10px] text-muted-foreground select-none">Auto</label>
-              <Switch
-                id="auto-adv"
-                checked={autoAdvance}
-                onCheckedChange={setAutoAdvance}
-                className="scale-75 origin-center"
-              />
-            </div>
+          {/* Right: score + timer — absolutely positioned */}
+          <div className="absolute right-0 pr-14 sm:pr-16 flex items-center gap-3">
             <span className="text-sm text-muted-foreground">
               <span className="font-bold text-foreground">{currentPlayer.score}</span> pts
             </span>
@@ -365,9 +358,9 @@ const VersusMode = () => {
             </CardContent>
           </Card>
 
-          {/* Confidence */}
+          {/* Confidence + Auto toggle */}
           <div className="space-y-1">
-            <div className="flex justify-center gap-2">
+            <div className="flex items-center justify-center gap-2">
               {(["low", "medium", "high"] as Confidence[]).map((level) => {
                 const selected = confidence === level;
                 const isLocked = selectedId !== null;
@@ -388,6 +381,16 @@ const VersusMode = () => {
                   </button>
                 );
               })}
+              {/* Auto-advance toggle — beside confidence pills */}
+              <div className="flex items-center gap-1.5 ml-2 pl-2 border-l border-border/50">
+                <label htmlFor="auto-adv" className="text-[10px] text-muted-foreground select-none">Auto</label>
+                <Switch
+                  id="auto-adv"
+                  checked={autoAdvance}
+                  onCheckedChange={setAutoAdvance}
+                  className="scale-75 origin-center"
+                />
+              </div>
             </div>
             <button
               onClick={() => setShowScoring(!showScoring)}
