@@ -31,7 +31,7 @@ const StudyMode = () => {
   const [showAnalysis, setShowAnalysis] = useState(init?.showAnalysis ?? true);
   const [results, setResults] = useState<boolean[]>(init?.results ?? []);
   const [finished, setFinished] = useState(init?.finished ?? false);
-  const [currency, setCurrency] = useState(init?.currency ?? 50);
+  const [currency, setCurrency] = useState(init?.currency ?? 25);
   const [deltaText, setDeltaText] = useState<string | null>(init?.deltaText ?? null);
 
   // Persist session on every state change
@@ -270,7 +270,7 @@ const StudyMode = () => {
                       </button>
                     </SheetTrigger>
                     <SheetContent side="right" className="w-[300px] sm:w-[340px] p-4 pt-8 overflow-y-auto">
-                      <PatientAvatar caseData={currentCase} />
+                      <PatientAvatar caseData={currentCase} currency={currency} onSpendCurrency={(cost) => setCurrency(prev => Math.max(0, prev - cost))} />
                     </SheetContent>
                   </Sheet>
                 </div>

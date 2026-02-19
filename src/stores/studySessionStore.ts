@@ -49,8 +49,8 @@ const defaultSession = (): StudySessionState => ({
   currency: (() => {
     try {
       const v = localStorage.getItem("study-mode-currency");
-      return v ? parseInt(v, 10) : 50;
-    } catch { return 50; }
+      return v ? parseInt(v, 10) : 25;
+    } catch { return 25; }
   })(),
   deltaText: null,
   showGuidelines: false,
