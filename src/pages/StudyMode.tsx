@@ -396,58 +396,56 @@ const StudyMode = () => {
                 </div>
 
                 {/* Reasoning Analysis Section */}
-                <div className="border-t border-border/50 mt-4 pt-4">
-                  <div className="rounded-lg bg-muted/20 p-4 space-y-2">
-                    {reasoningResults && (
-                      <>
-                        <CollapsibleSection
-                          title="Reasoning Analysis"
-                          icon={<Sparkles className="h-3.5 w-3.5 text-primary/60" />}
-                          open={showAnalysis}
-                          onToggle={() => setShowAnalysis(!showAnalysis)}
-                        >
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-3">
-                              <span className="text-xs text-muted-foreground">Score</span>
-                              <span className={`text-xs font-bold ${
-                                reasoningResults.score <= 1 ? "text-destructive/80" :
-                                reasoningResults.score === 2 ? "text-warning/80" :
-                                "text-success/80"
-                              }`}>
-                                {reasoningResults.score}/4
-                              </span>
-                              {reasoningResults.prioritySignal && (
-                                <span className="text-xs text-muted-foreground italic">— {reasoningResults.prioritySignal}</span>
-                              )}
-                            </div>
-                            {reasoningResults.lowQuality && (
-                              <div className="flex items-start gap-2 text-xs text-warning/80">
-                                <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                                <span>Low-quality explanation — reference specific mechanisms, risks, and patient factors.</span>
-                              </div>
-                            )}
-                            {reasoningResults.hits.length > 0 && (
-                              <div className="space-y-1">
-                                <p className="text-xs font-semibold text-success/80">Considered</p>
-                                {reasoningResults.hits.map((h, i) => (
-                                  <p key={i} className="text-sm text-foreground/80 pl-3">– {h.label}: {h.hitFeedback}</p>
-                                ))}
-                              </div>
-                            )}
-                            {reasoningResults.misses.length > 0 && (
-                              <div className="space-y-1">
-                                <p className="text-xs font-semibold text-destructive/80">Overlooked</p>
-                                {reasoningResults.misses.map((m, i) => (
-                                  <p key={i} className="text-sm text-muted-foreground pl-3">– {m.label}: {m.missFeedback}</p>
-                                ))}
-                              </div>
+                {reasoningResults && (
+                  <div className="border-t border-border/50 mt-4 pt-4">
+                    <div className="rounded-lg border border-border/60 bg-muted/30 p-4 space-y-2">
+                      <CollapsibleSection
+                        title="Reasoning Analysis"
+                        icon={<Sparkles className="h-4 w-4 text-primary/70" />}
+                        open={showAnalysis}
+                        onToggle={() => setShowAnalysis(!showAnalysis)}
+                        prominent
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                              reasoningResults.score <= 1 ? "bg-destructive/10 text-destructive" :
+                              reasoningResults.score === 2 ? "bg-warning/10 text-warning" :
+                              "bg-success/10 text-success"
+                            }`}>
+                              {reasoningResults.score}/4
+                            </span>
+                            {reasoningResults.prioritySignal && (
+                              <span className="text-xs text-muted-foreground italic">{reasoningResults.prioritySignal}</span>
                             )}
                           </div>
-                        </CollapsibleSection>
-                      </>
-                    )}
+                          {reasoningResults.lowQuality && (
+                            <div className="flex items-start gap-2 text-xs text-warning/80">
+                              <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                              <span>Low-quality explanation — reference specific mechanisms, risks, and patient factors.</span>
+                            </div>
+                          )}
+                          {reasoningResults.hits.length > 0 && (
+                            <div className="space-y-1">
+                              <p className="text-xs font-semibold text-success/80">Considered</p>
+                              {reasoningResults.hits.map((h, i) => (
+                                <p key={i} className="text-sm text-foreground/80 pl-3">– {h.label}: {h.hitFeedback}</p>
+                              ))}
+                            </div>
+                          )}
+                          {reasoningResults.misses.length > 0 && (
+                            <div className="space-y-1">
+                              <p className="text-xs font-semibold text-destructive/80">Overlooked</p>
+                              {reasoningResults.misses.map((m, i) => (
+                                <p key={i} className="text-sm text-muted-foreground pl-3">– {m.label}: {m.missFeedback}</p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </CollapsibleSection>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Your Reasoning Section */}
                 <div className="border-t border-border/50 mt-4 pt-4">
@@ -552,17 +550,22 @@ const LabPill = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
-const CollapsibleSection = ({ title, icon, open, onToggle, children }: {
+const CollapsibleSection = ({ title, icon, open, onToggle, children, prominent }: {
   title: string;
   icon?: React.ReactNode;
   open: boolean;
   onToggle: () => void;
   children: React.ReactNode;
+  prominent?: boolean;
 }) => (
   <div>
     <button
       onClick={onToggle}
-      className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+      className={`flex items-center gap-1.5 transition-colors ${
+        prominent
+          ? "text-sm font-bold text-foreground hover:text-primary"
+          : "text-xs font-semibold text-muted-foreground hover:text-foreground"
+      }`}
     >
       <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       {icon}
