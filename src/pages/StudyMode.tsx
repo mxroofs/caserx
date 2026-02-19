@@ -283,13 +283,40 @@ const StudyMode = () => {
                 <LabPill label="BMI" value={currentCase.metrics.bmi} />
               </div>
 
-              {/* Clinical details */}
+              {/* Comorbidities */}
               <div className="text-sm text-muted-foreground leading-relaxed">
-                <span className="font-medium text-foreground/70">Hx: </span>
+                <span className="font-medium text-foreground/70">Comorbidities: </span>
                 {currentCase.comorbidities.join(" · ")}
               </div>
+
+              {/* Kidney function context */}
+              {(() => {
+                const egfr = parseFloat(currentCase.metrics.egfr);
+                const stage = egfr >= 90 ? "Normal" : egfr >= 60 ? "CKD Stage 2–3a" : egfr >= 30 ? "CKD Stage 3b" : egfr >= 15 ? "CKD Stage 4" : "CKD Stage 5";
+                return (
+                  <div className="text-sm text-muted-foreground leading-relaxed -mt-1">
+                    <span className="font-medium text-foreground/70">Renal: </span>
+                    eGFR {currentCase.metrics.egfr} ({stage})
+                    {currentCase.comorbidities.join(" ").toLowerCase().includes("albuminuria") && " · Albuminuria present"}
+                  </div>
+                );
+              })()}
+
+              {/* Weight classification */}
+              {(() => {
+                const bmi = parseFloat(currentCase.metrics.bmi);
+                const cls = bmi >= 40 ? "Class III obesity" : bmi >= 35 ? "Class II obesity" : bmi >= 30 ? "Class I obesity" : bmi >= 25 ? "Overweight" : "Normal weight";
+                return (
+                  <div className="text-sm text-muted-foreground leading-relaxed -mt-1">
+                    <span className="font-medium text-foreground/70">Weight: </span>
+                    BMI {currentCase.metrics.bmi} ({cls})
+                  </div>
+                );
+              })()}
+
+              {/* Current medications */}
               <div className="text-sm text-muted-foreground leading-relaxed -mt-1">
-                <span className="font-medium text-foreground/70">Meds: </span>
+                <span className="font-medium text-foreground/70">Current Meds: </span>
                 {currentCase.current_meds.join(", ")}
               </div>
             </CardContent>
